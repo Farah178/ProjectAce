@@ -12,7 +12,10 @@ on:
       server_password:
         description: 'EkfraZo@123#E'
         required: true
-
+  push:
+    branches:
+      - main
+      
 jobs:
   quality-assurance:
     name: Quality Assurance
