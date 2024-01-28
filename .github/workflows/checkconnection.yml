@@ -15,7 +15,7 @@ on:
   push:
     branches:
       - main
-      
+
 jobs:
   quality-assurance:
     name: Quality Assurance
@@ -31,7 +31,8 @@ jobs:
       - name: Check Connection
         uses: appleboy/ssh-action@master
         with:
-          host: ${{ inputs.server_host }}
-          username: ${{ inputs.server_user }}
-          password: ${{ inputs.server_password }}
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          password: ${{ secrets.SERVER_PASSWORD }}
           command: 'echo "Connection successful"'
+
