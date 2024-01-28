@@ -1,0 +1,34 @@
+name: Check Server Connection
+
+on:
+  workflow_dispatch:
+    inputs:
+      server_host:
+        description: '165.232.181.49'
+        required: true
+      server_user:
+        description: 'root'
+        required: true
+      server_password:
+        description: 'EkfraZo@123#E'
+        required: true
+
+jobs:
+  quality-assurance:
+    name: Quality Assurance
+    uses: ./.github/workflows/pr.yml
+
+  check-connection:
+    name: Check connection to server
+    needs: quality-assurance
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check Connection
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ inputs.server_host }}
+          username: ${{ inputs.server_user }}
+          password: ${{ inputs.server_password }}
+          command: 'echo "Connection successful"'
