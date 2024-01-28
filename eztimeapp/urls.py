@@ -8,6 +8,7 @@ from eztimeapp.views import *
 from .views import *
 
 
+
 app_name = 'eztimeapp'
 
 urlpatterns = [
