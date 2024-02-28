@@ -1,0 +1,38 @@
+# Ignore database files
+*.sqlite3
+*.db
+
+# Ignore static files directory
+/static/
+
+# Ignore media files directory
+/media/
+
+# Ignore Python bytecode files
+__pycache__/
+*.pyc
+
+# Ignore system-specific files
+.DS_Store
+Thumbs.db
+
+# Ignore environment files containing sensitive information
+.env
+
+# Ignore local development settings
+/local_settings.py
+
+# Ignore IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Ignore any compiled Python files
+*.pyc
+*.pyo
+*.pyd
+
+# Ignore logs
+*.log

@@ -8401,10 +8401,10 @@ class  BalanceApiView(APIView):
                 no_of_leaves = center_leave.no_of_leaves
                 
                 if monthly_leaves != '' and no_of_leaves != '' and monthly_leaves is not None and no_of_leaves is not None:
-                    total_leaves_i_have = float(monthly_leaves) + float(no_of_leaves)
-                    print(float(total_leaves_i_have), 'total_leaves_i_have -', float(total_leaves_taken), ' total_leaves_taken')
+                    # total_leaves_i_have = float(monthly_leaves) + float(no_of_leaves)
+                    # print(float(total_leaves_i_have), 'total_leaves_i_have -', float(total_leaves_taken), ' total_leaves_taken')
                     
-                    total_leaves_left = float(no_of_leaves) - float(total_leaves_taken) + float(monthly_leaves)
+                    total_leaves_left = float(no_of_leaves) - float(total_leaves_taken)
                     
                     if total_leaves_left > 0:
                         if days and total_leaves_left:
@@ -8442,6 +8442,7 @@ class  BalanceApiView(APIView):
                         return Response({
                             'error': {
                                 'message': 'You do not have enough leaves left to apply',
+                                'total_leaves_you_have': float(no_of_leaves),
                                 'total_leaves_taken': float(total_leaves_taken),
                                 'total_leaves_left': float(total_leaves_left),
                                 'hint': message1,
@@ -8462,11 +8463,11 @@ class  BalanceApiView(APIView):
                 no_of_leaves = center_leave.no_of_leaves
                 
                 if yearly_leaves != '' and no_of_leaves != '' and yearly_leaves is not None and no_of_leaves is not None:
-                    total_leaves_i_have = float(yearly_leaves) + float(no_of_leaves)
-                    total_leaves_left = float(no_of_leaves) - float(total_leaves_taken) + float(yearly_leaves)
+                    # total_leaves_i_have = float(yearly_leaves) + float(no_of_leaves)
+                    total_leaves_left = float(no_of_leaves) - float(total_leaves_taken)
                     
                     if total_leaves_left > 0:
-                        if float(total_leaves_left) > float(days):
+                        if float(total_leaves_left) >= float(days):
                             balance = float(total_leaves_left) - float(days)
                             result_dic['accrude_yearly'] = "accrude yearly leave is added to total leaves"
                             result_dic['alloted_leaves'] = float(no_of_leaves)
@@ -8488,6 +8489,7 @@ class  BalanceApiView(APIView):
                         return Response({
                             'error': {
                                 'message': 'You do not have enough leaves left to apply',
+                                'total_leaves_you_have': float(no_of_leaves),
                                 'total_leaves_taken': float(total_leaves_taken),
                                 'total_leaves_left': float(total_leaves_left),
                                 'insternal':'2',
