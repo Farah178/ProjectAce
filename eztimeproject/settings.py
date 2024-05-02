@@ -45,8 +45,6 @@ THIRD_PARTY_APPS = [
     'django_filters',
     'drf_yasg',
     'corsheaders',
-    'django_celery_results',
-    'django_celery_beat',
     'import_export',
 ]
 LOCAL_APPS  = [
@@ -169,9 +167,9 @@ MEDIA_URL = '/media/'
 STATIC_ROOT="/eztime/site/public/static"
 MEDIA_ROOT="/eztime/site/public/media"
 
-STATICFILES_DIRS = [
-        '/eztime/site/public/static/frontend'
-] 
+# STATICFILES_DIRS = [
+#         '/eztime/site/public/static/frontend'
+# ] 
 
 
 
@@ -204,14 +202,14 @@ CORS_ALLOW_CREDENTIALS  = True
 
 #CELERY setting
 
-CELERY_BROKER_URL = 'redis://127.0.0.1:6379'
-# CELERY_RESULT_BACKEND ='redis://127.0.0.1:6379'
-CELERY_RESULT_BACKEND ='django-db'
-CELERY_ACCET_CONTENT = ['application/json']
-CELERY_RESULT_SERIALIZER ='json'
-CELERY_TASK_SERIALIZER ='json'
-CELERY_TIMEZONE ='Asia/Kolkata'
-CELERY_CACHE_BACKEND = 'django-cache'
+# CELERY_BROKER_URL = 'redis://127.0.0.1:6379'
+# # CELERY_RESULT_BACKEND ='redis://127.0.0.1:6379'
+# CELERY_RESULT_BACKEND ='django-db'
+# CELERY_ACCET_CONTENT = ['application/json']
+# CELERY_RESULT_SERIALIZER ='json'
+# CELERY_TASK_SERIALIZER ='json'
+# CELERY_TIMEZONE ='Asia/Kolkata'
+# CELERY_CACHE_BACKEND = 'django-cache'
 
 REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',

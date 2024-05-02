@@ -8,7 +8,7 @@ ADD . /eztime/django
 
 COPY requirements.txt /eztime/django/requirements.txt
 
-RUN pip install -r requirements.txt
+RUN pip3 install -r requirements.txt
 
 COPY . /eztime/django
 
