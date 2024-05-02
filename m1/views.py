@@ -29,7 +29,7 @@ from django.db.models.functions import ExtractMonth, ExtractYear
 from django.utils.timezone import datetime
 from datetime import timedelta
 from django.utils import timezone
-from m1.tasks import auto_approve_timesheet
+# from m1.tasks import auto_approve_timesheet
 from eztimeapp.models import *
 # Create your views here.
 
