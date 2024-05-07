@@ -110,7 +110,7 @@ WSGI_APPLICATION = 'eztimeproject.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'database_name', 
+        'NAME': 'admin_ace', 
         'USER': 'admin_ace',  # Your MySQL database username
         'PASSWORD': '@dmin@ce@123',  # Your MySQL database password
         'HOST': 'ace-db.mysql.database.azure.com',  # Your Azure MySQL server hostname
