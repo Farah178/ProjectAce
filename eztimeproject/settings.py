@@ -26,7 +26,7 @@ SECRET_KEY = 'django-insecure-b+$c%lkixc=a0efyz4+_totmnwzj@#_m)(-xweihk%yu9%xi(@
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["eztime.thestorywallcafe.com", "https://eztime.thestorywallcafe.com","20.197.54.1"]
+ALLOWED_HOSTS = ["eztime.thestorywallcafe.com", "https://eztime.thestorywallcafe.com","20.197.54.1","http://localhost:8000"]
 
 
 # Application definition
