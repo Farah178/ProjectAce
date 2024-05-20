@@ -26,7 +26,7 @@ SECRET_KEY = 'django-insecure-b+$c%lkixc=a0efyz4+_totmnwzj@#_m)(-xweihk%yu9%xi(@
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["eztime.thestorywallcafe.com", "https://eztime.thestorywallcafe.com"]
+ALLOWED_HOSTS = ["eztime.thestorywallcafe.com", "https://eztime.thestorywallcafe.com","20.197.54.1"]
 
 
 # Application definition
@@ -115,7 +115,7 @@ DATABASES = {
         'USER': 'admin_ace',             
         'PASSWORD': 'Projectace@@123',
         'HOST': 'ace-db.mysql.database.azure.com',
-        'PORT': '',
+        'PORT': '3006',
         # 'OPTIONS': { 
         #      'driver': 'ODBC Driver 17 for SQL Server', 
         #      'extra_params': "Authentication=ActiveDirectoryMsi;Encrypt=yes;TrustServerCertificate=no" }
