@@ -26,7 +26,7 @@ SECRET_KEY = 'django-insecure-b+$c%lkixc=a0efyz4+_totmnwzj@#_m)(-xweihk%yu9%xi(@
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["*","https://projectace.in/", "https://projectace.in/"]
+ALLOWED_HOSTS = ["eztime.thestorywallcafe.com", "https://eztime.thestorywallcafe.com"]
 
 
 # Application definition
@@ -45,6 +45,8 @@ THIRD_PARTY_APPS = [
     'django_filters',
     'drf_yasg',
     'corsheaders',
+    # 'django_celery_results',
+    # 'django_celery_beat',
     'import_export',
 ]
 LOCAL_APPS  = [
@@ -107,12 +109,19 @@ WSGI_APPLICATION = 'eztimeproject.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'OPTIONS': {
-            'read_default_file': '/eztime/auth/mysql.cnf',
-        },
-    }
+        'ENGINE': 'mssql',
+        'Trusted_Connection': 'no', 
+        'NAME': 'project_ace', # Data base name
+        'USER': 'admin_ace',             
+        'PASSWORD': 'Projectace@@123',
+        'HOST': 'ace-db.mysql.database.azure.com',
+        'PORT': '',
+        # 'OPTIONS': { 
+        #      'driver': 'ODBC Driver 17 for SQL Server', 
+        #      'extra_params': "Authentication=ActiveDirectoryMsi;Encrypt=yes;TrustServerCertificate=no" }
+    },
 }
+
 
 # Password validation
 # https://docs.djangoproject.com/en/3.2/ref/settings/#auth-password-validators
@@ -144,7 +153,7 @@ USE_I18N = True
 
 USE_L10N = True
 
-USE_TZ = True
+USE_TZ = False
 
 
 # Static files (CSS, JavaScript, Images)
@@ -167,9 +176,9 @@ MEDIA_URL = '/media/'
 STATIC_ROOT="/eztime/site/public/static"
 MEDIA_ROOT="/eztime/site/public/media"
 
-# STATICFILES_DIRS = [
-#         '/eztime/site/public/static/frontend'
-# ] 
+STATICFILES_DIRS = [
+        '/eztime/site/public/static/frontend'
+] 
 
 
 
@@ -202,14 +211,14 @@ CORS_ALLOW_CREDENTIALS  = True
 
 #CELERY setting
 
-# CELERY_BROKER_URL = 'redis://127.0.0.1:6379'
-# # CELERY_RESULT_BACKEND ='redis://127.0.0.1:6379'
-# CELERY_RESULT_BACKEND ='django-db'
-# CELERY_ACCET_CONTENT = ['application/json']
-# CELERY_RESULT_SERIALIZER ='json'
-# CELERY_TASK_SERIALIZER ='json'
-# CELERY_TIMEZONE ='Asia/Kolkata'
-# CELERY_CACHE_BACKEND = 'django-cache'
+CELERY_BROKER_URL = 'redis://127.0.0.1:6379'
+# CELERY_RESULT_BACKEND ='redis://127.0.0.1:6379'
+CELERY_RESULT_BACKEND ='django-db'
+CELERY_ACCET_CONTENT = ['application/json']
+CELERY_RESULT_SERIALIZER ='json'
+CELERY_TASK_SERIALIZER ='json'
+CELERY_TIMEZONE ='Asia/Kolkata'
+CELERY_CACHE_BACKEND = 'django-cache'
 
 REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
