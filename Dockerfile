@@ -15,7 +15,7 @@ COPY requirements.txt /eztime/django/requirements.txt
 RUN pip3 install -r requirements.txt
 
 # Collect static files
-RUN python manage.py collectstatic --noinput
+# RUN python manage.py collectstatic --noinput
 
 # Install Nginx
 RUN apt-get update && apt-get install -y nginx
