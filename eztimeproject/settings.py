@@ -111,14 +111,14 @@ DATABASES = {
     'default': {
         'ENGINE': 'mssql',
         'Trusted_Connection': 'no', 
-        'NAME': 'admin_ace',
+        'NAME': 'project_ace', # Data base name
         'USER': 'admin_ace',             
         'PASSWORD': 'Projectace@@123',
         'HOST': 'ace-db.mysql.database.azure.com',
         'PORT': '',
-        'OPTIONS': { 
-             'driver': 'ODBC Driver 17 for SQL Server', 
-             'extra_params': "Authentication=ActiveDirectoryMsi;Encrypt=yes;TrustServerCertificate=no" }
+        # 'OPTIONS': { 
+        #      'driver': 'ODBC Driver 17 for SQL Server', 
+        #      'extra_params': "Authentication=ActiveDirectoryMsi;Encrypt=yes;TrustServerCertificate=no" }
     },
 }
 
