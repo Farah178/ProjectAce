@@ -45,8 +45,8 @@ THIRD_PARTY_APPS = [
     'django_filters',
     'drf_yasg',
     'corsheaders',
-    'django_celery_results',
-    'django_celery_beat',
+    # 'django_celery_results',
+    # 'django_celery_beat',
     'import_export',
 ]
 LOCAL_APPS  = [
@@ -109,19 +109,19 @@ WSGI_APPLICATION = 'eztimeproject.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'admin_ace', 
-        'USER': 'admin_ace',  # Your MySQL database username
-        'PASSWORD': '@dmin@ce@123',  # Your MySQL database password
-        'HOST': 'ace-db.mysql.database.azure.com',  # Your Azure MySQL server hostname
-        'PORT': '3306',  # MySQL default port is 3306
-        # 'OPTIONS': {
-        #     'ssl': {
-        #         'ca': '/path/to/BaltimoreCyberTrustRoot.crt.pem',  # Path to Azure SSL certificate
-        #     },
-        # },
+        'ENGINE': 'mssql',
+        'Trusted_Connection': 'no', 
+        'NAME': 'admin_ace',
+        'USER': 'admin_ace',             
+        'PASSWORD': 'Projectace@@123',
+        'HOST': 'ace-db.mysql.database.azure.com',
+        'PORT': '',
+        'OPTIONS': { 
+             'driver': 'ODBC Driver 17 for SQL Server', 
+             'extra_params': "Authentication=ActiveDirectoryMsi;Encrypt=yes;TrustServerCertificate=no" }
     },
 }
+
 
 # Password validation
 # https://docs.djangoproject.com/en/3.2/ref/settings/#auth-password-validators
@@ -153,7 +153,7 @@ USE_I18N = True
 
 USE_L10N = True
 
-USE_TZ = True
+USE_TZ = False
 
 
 # Static files (CSS, JavaScript, Images)

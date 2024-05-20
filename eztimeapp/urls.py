@@ -3,7 +3,7 @@ from . import views
 
 from rest_framework import routers
 from django.conf.urls.static import static
-from django.conf.urls import url
+# from django.conf.urls import url
 from eztimeapp.views import *
 from .views import *
 
