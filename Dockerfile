@@ -7,18 +7,27 @@ ENV PYTHONUNBUFFERED 1
 # Set the working directory in the container
 WORKDIR /eztime/django
 
+# Install dependencies
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    libssl-dev \
+    libffi-dev \
+    curl \
+    nginx \
+    && rm -rf /var/lib/apt/lists/*
+
 # Copy the current directory contents into the container at /eztime/django
 ADD . /eztime/django
 
+# Copy the SSL certificate into the container
+COPY DigiCertGlobalRootCA.crt.pem /eztime/django/ssl/DigiCertGlobalRootCA.crt.pem
+
 # Install any needed packages specified in requirements.txt
 COPY requirements.txt /eztime/django/requirements.txt
-RUN pip3 install -r requirements.txt
+RUN pip install -r requirements.txt
 
 # Collect static files
 RUN python manage.py collectstatic --noinput
-
-# Install Nginx
-RUN apt-get update && apt-get install -y nginx
 
 # Copy Nginx configuration file
 COPY nginx.conf /etc/nginx/sites-available/default
@@ -27,8 +36,10 @@ COPY nginx.conf /etc/nginx/sites-available/default
 EXPOSE 8000
 
 # Install Gunicorn
-RUN pip3 install gunicorn
+RUN pip install gunicorn
 
-# Use Gunicorn to serve your application
-CMD service nginx start && gunicorn --bind 0.0.0.0:8000 eztimeproject.wsgi:application
-
+# Run database migrations and start the server
+CMD service nginx start && \
+    python manage.py makemigrations && \
+    python manage.py migrate && \
+    gunicorn --bind 0.0.0.0:8000 eztimeproject.wsgi:application
