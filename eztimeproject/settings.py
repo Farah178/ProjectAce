@@ -26,8 +26,7 @@ SECRET_KEY = 'django-insecure-b+$c%lkixc=a0efyz4+_totmnwzj@#_m)(-xweihk%yu9%xi(@
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["eztime.thestorywallcafe.com", "https://eztime.thestorywallcafe.com","20.197.54.1","http://localhost:8000"]
-
+ALLOWED_HOSTS = ["*",'143.110.184.45', 'https://eztime.thestorywallcafe.com', 'eztime.thestorywallcafe.com', '127.0.0.1',"20.197.54.1"]
 
 # Application definition
 
@@ -42,8 +41,8 @@ DEFAULT_APPS = [
 THIRD_PARTY_APPS = [
     'rest_framework',
     'rest_framework.authtoken',
-    'django_filters',
-    'drf_yasg',
+    # 'django_filters',
+    # 'drf_yasg',
     'corsheaders',
     # 'django_celery_results',
     # 'django_celery_beat',
@@ -107,21 +106,42 @@ WSGI_APPLICATION = 'eztimeproject.wsgi.application'
 #     print("create your own local setting file to use local settings")
 #     pass
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'mssql',
+#         'NAME': 'project_ace',  # Database name
+#         'USER': 'admin_ace',
+#         'PASSWORD': 'Projectace@@123',
+#         'HOST': 'ace-db.mysql.database.azure.com',
+#         'PORT': '',  # Leave empty or remove this line
+#         'OPTIONS': {
+#             'driver': 'ODBC Driver 17 for SQL Server',
+#             'server': 'ace-db.mysql.database.azure.com',
+#             'port': '1433',
+#             'database': 'project_ace',
+#             'UID': 'admin_ace',
+#             'PWD': 'Projectace@@123',
+#             'Encrypt': 'yes',
+#             'TrustServerCertificate': 'no',
+#         },
+#     },
+# }
+
 DATABASES = {
     'default': {
-        'ENGINE': 'mssql',
-        'Trusted_Connection': 'no', 
-        'NAME': 'project_ace', # Data base name
-        'USER': 'admin_ace',             
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'project_ace',  # Database name
+        'USER': 'admin_ace',
         'PASSWORD': 'Projectace@@123',
         'HOST': 'ace-db.mysql.database.azure.com',
-        'PORT': '3006',
-        # 'OPTIONS': { 
-        #      'driver': 'ODBC Driver 17 for SQL Server', 
-        #      'extra_params': "Authentication=ActiveDirectoryMsi;Encrypt=yes;TrustServerCertificate=no" }
-    },
+        'PORT': '3306',
+        'OPTIONS': {
+            'ssl': {
+                'ca': '/eztime/django/ssl/DigiCertGlobalRootCA.crt.pem',
+                }
+            }     
+        }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/3.2/ref/settings/#auth-password-validators
@@ -171,14 +191,14 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 STATIC_URL = '/static/'
 MEDIA_URL = '/media/'
+STATIC_ROOT="/eztime/static/"
 
+# STATIC_ROOT="/eztime/site/public/static"
+# MEDIA_ROOT="/eztime/site/public/media"
 
-STATIC_ROOT="/eztime/site/public/static"
-MEDIA_ROOT="/eztime/site/public/media"
-
-STATICFILES_DIRS = [
-        '/eztime/site/public/static/frontend'
-] 
+# STATICFILES_DIRS = [
+#         '/eztime/site/public/static/frontend'
+# ] 
 
 
 
