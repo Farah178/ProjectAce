@@ -22,7 +22,19 @@ def MyPagination(data, page_number, data_per_page,request):
     base_url = request.build_absolute_uri('?page_number')
 
     paginator = Paginator(data, data_per_page)
-    page = paginator.page(page_number)
+        paginator = Paginator(data, data_per_page)
+    
+    try:
+        page = paginator.page(page_number)
+    except PageNotAnInteger:
+        # If page_number is not an integer, deliver the first page.
+        page = paginator.page(1)
+    except EmptyPage:
+        # If the page_number is out of range, deliver the last page of results.
+        page = paginator.page(paginator.num_pages)
+
+    
+    # page = paginator.page(page_number)
    
     if page.has_next():
         next_page = int(page_number) + 1
