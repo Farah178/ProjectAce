@@ -224,7 +224,7 @@ class RegistrationApiVew(APIView):
         profile_base64  = data['profile_base64']
         prefix_suffix_id   = data['prefix_suffix_id']
         department_id      = data['department_id']
-        role_id            = data['role_id']
+        # role_id            = data['role_id']
         user_role_id            = data['user_role_id']
         cost_center_id     = data['cost_center_id']
         tags            = data['tags']
@@ -263,7 +263,7 @@ class RegistrationApiVew(APIView):
                                     prefix_suffix_id = prefix_suffix_id,
                                     department_id = department_id,
                                     user_role_id = user_role_id,
-                                    role_id = role_id,
+                                    # role_id = role_id,
                                     cost_center_id = cost_center_id,
                                     tags = tags,
                                     )
@@ -294,7 +294,7 @@ class RegistrationApiVew(APIView):
                     'user_id': user_id,
                     'organization_id':user_create.organization_id,
                     'center_id':user_create.center_id,
-                    'role_id': people_data.role_id,
+                    # 'role_id': people_data.role_id,
                     'user_status': user_create.u_status,
                     'manager_id':people_data.user_reporting_manager_ref_id,
                     'user_role_id': user_create.user_role_id,
@@ -354,6 +354,12 @@ class LoginView(APIView):
                 if arragned_data[0] == 2:
                     return arragned_data[1]
 
+                if userrole.user_role_name == 'ADMIN':
+                    manager_id = c_user.id
+                else:
+                    manager_id = people_data.user_reporting_manager_ref_id
+
+
                 response_result['result'] = {
                     'detail': 'Login successfull',
                     'token':authorization,
@@ -372,7 +378,7 @@ class LoginView(APIView):
                     'user_role_name': userrole.user_role_name,
                     'center_id':c_user.center_id,
                     'role_id': people_data.role_id,
-                    'manager_id':people_data.user_reporting_manager_ref_id,
+                    'manager_id':manager_id,
                     'arragned_data':arragned_data[1],
                     'module_name': userrole.module_name,
                     'permissions': userrole.permissions,
@@ -494,7 +500,7 @@ class ChangePassword(GenericAPIView):
                 }},status=status.HTTP_404_NOT_FOUND)
     
 
-# @method_decorator([AutorizationRequired], name='dispatch')
+@method_decorator([AutorizationRequired], name='dispatch')
 class OrganizationApiView(APIView):
     def get(self,request):
         id = request.query_params.get('id')
@@ -508,7 +514,7 @@ class OrganizationApiView(APIView):
         pagination = request.query_params.get('pagination')
 
         if pagination == 'FALSE':
-            all_data = Organization.objects.all().values().order_by('-id')
+            all_data = Organization.objects.filter(~Q(org_qr_uniq_id='ProjectACE2025')).values().order_by('-id')
             org_list = []
             for i in all_data:
                 org_data = CustomUser.objects.filter(Q(organization_id=i['id'])).count()
@@ -643,7 +649,7 @@ class OrganizationApiView(APIView):
                 'status_code':status.HTTP_404_NOT_FOUND,
                 }},status=status.HTTP_404_NOT_FOUND)
         else:
-            all_data = Organization.objects.all().values().order_by('-id')
+            all_data = Organization.objects.filter(~Q(org_qr_uniq_id='ProjectACE2025')).values().order_by('-id')
             org_list = []
             for i in all_data:
                 org_data = CustomUser.objects.filter(Q(organization_id=i['id'])).count()
@@ -1034,6 +1040,7 @@ class OrganizationApiView(APIView):
 #         else:
 #             all_data = TypeOfIndustries.objects.all().values().order_by('-id')
 #             return Response({'result':{'status':'GET','data':all_data}})
+@method_decorator([AutorizationRequired], name='dispatch')
 class TypeOfIndustriesApiView(APIView):
     
     def get(self,request):
@@ -1050,12 +1057,12 @@ class TypeOfIndustriesApiView(APIView):
     
         pagination = request.query_params.get('pagination')
         if pagination == 'FALSE':
-            all_data = TypeOfIndustries.objects.filter(org_ref_id=org_ref_id).values().order_by('-id')
+            all_data = TypeOfIndustries.objects.filter(Q(org_ref_id=org_ref_id) & ~Q(toi_status='Inactive')).values().order_by('-id')
             return Response({'result':{'status':'GET all without pagination','data':all_data}})
 
         if id:
             try:
-                all_data = TypeOfIndustries.objects.filter(Q(id=id) & Q(org_ref_id=org_ref_id)).values().order_by('-id')
+                all_data = TypeOfIndustries.objects.filter(Q(id=id) & Q(org_ref_id=org_ref_id) & ~Q(toi_status='Inactive')).values().order_by('-id')
                 return Response({'result':{'status':'GET by Id','data':all_data}})
             except Organization.DoesNotExist:
                 return Response({
@@ -1186,7 +1193,7 @@ class TypeOfIndustriesApiView(APIView):
 
 
 
-# @method_decorator([AutorizationRequired], name='dispatch')
+@method_decorator([AutorizationRequired], name='dispatch')
 class ClientsApiView(APIView):
     def get(self,request):
         key = {'org_ref_id','page_number','data_per_page','pagination'}
@@ -1399,7 +1406,7 @@ class ClientsApiView(APIView):
             return Response({'result':{'status':'deleted'}})
 
 
-# @method_decorator([AutorizationRequired], name='dispatch')
+@method_decorator([AutorizationRequired], name='dispatch')
 class OrgPeopleGroupView(APIView):
     def get(self,request):
         id = request.query_params.get('id')
@@ -1513,7 +1520,7 @@ class OrgPeopleGroupView(APIView):
 
 # from .pagination import MyPagination
 
-# @method_decorator([authorization_required], name='dispatch')
+@method_decorator([authorization_required], name='dispatch')
 class OrganizationDepartmentView(APIView):
     # pagination_class = MyPagination
     # serializer_class = OrganizationDepartmentSerializer
@@ -1651,7 +1658,7 @@ class OrganizationDepartmentView(APIView):
             return Response({'result':{'status':'deleted'}})
 
 
-# @method_decorator([AutorizationRequired], name='dispatch')
+@method_decorator([AutorizationRequired], name='dispatch')
 class ClientsDMS(APIView):
     def get(self,request):
         id = request.query_params.get('id')
@@ -1777,7 +1784,7 @@ class ClientsDMS(APIView):
 
 
 
-# @method_decorator([AutorizationRequired], name='dispatch')
+@method_decorator([AutorizationRequired], name='dispatch')
 class OrganizationCostCentersView(APIView):
     def get(self,request):
         id = request.query_params.get('id')
@@ -1893,7 +1900,7 @@ class OrganizationCostCentersView(APIView):
             return Response({'result':{'status':'deleted'}})
 
 
-# @method_decorator([AutorizationRequired], name='dispatch')
+@method_decorator([AutorizationRequired], name='dispatch')
 class ClientsOtherContactDetailsView(APIView):
     def get(self,request):
         id = request.query_params.get('id')
@@ -2013,7 +2020,7 @@ class ClientsOtherContactDetailsView(APIView):
         else:
             return Response({'result':{'status':'deleted'}})
 
-# @method_decorator([AutorizationRequired], name='dispatch')
+@method_decorator([AutorizationRequired], name='dispatch')
 class OrganizationRolesView(APIView):
     def get(self,request):
         id = request.query_params.get('id')
@@ -2145,10 +2152,10 @@ def convert_task_list_string(task_list):
                 task_list_string = str(task_list_string) +','+ str(u['task_name'] )
     return task_list_string
 
-def convert_tag_list_string(task_list):
+def convert_tag_list_string(tag_list):
     task_list_string = ''
-    for u in task_list:
-        if 'task_name' in u:
+    for u in tag_list:
+        if 'tag_name' in u:
             if task_list_string == '':
                 task_list_string = str(task_list_string) + str(u['tag_name'] )
             else:
@@ -2159,7 +2166,7 @@ def convert_tag_list_string(task_list):
 
 
 
-# @method_decorator([AutorizationRequired], name='dispatch')
+@method_decorator([AutorizationRequired], name='dispatch')
 class ProjectsAPIView(APIView):
     serializer_class = ProjectsSerializer
     
@@ -2327,6 +2334,8 @@ class ProjectsAPIView(APIView):
                     dic['p_status_color'] = 'red'
                 if i['p_status'] == "Completed":
                     dic['p_status_color'] = 'green'   
+                if i['p_status'] == "inprogress":
+                    dic['p_status_color'] = 'purple'   
                 project_list.append(dic) 
 
             return Response({'result':{'status':'GET all without pagination','data':project_list}})
@@ -2392,6 +2401,8 @@ class ProjectsAPIView(APIView):
                         dic['p_status_color'] = 'red'
                     if i['p_status'] == "Completed":
                         dic['p_status_color'] = 'green'   
+                    if i['p_status'] == "inprogress":
+                        dic['p_status_color'] = 'purple'   
                     project_list.append(dic) 
 
                 return Response({'result':{'status':'GET by Id','data':project_list}})
@@ -2481,6 +2492,8 @@ class ProjectsAPIView(APIView):
                     dic['p_status_color'] = 'red'
                 if i['p_status'] == "Completed":
                     dic['p_status_color'] = 'green'   
+                if i['p_status'] == "inprogress":
+                    dic['p_status_color'] = 'purple'   
                 project_list.append(dic) 
 
             data_pagination = EztimeAppPagination(project_list,page_number,data_per_page,request)
@@ -2517,7 +2530,7 @@ class ProjectsAPIView(APIView):
         p_estimated_cost         = data['p_estimated_cost']
         pc_ref                   = data['pc_ref_id']
         p_task_checklist_status  = data['p_task_checklist_status']
-        # p_status                 = data['p_status']
+        p_status                 = data['p_status']
         p_activation_status      = data['p_activation_status']
 
         task_project_category_list = data['task_project_category_list']
@@ -2562,7 +2575,7 @@ class ProjectsAPIView(APIView):
                 p_estimated_hours =p_estimated_hours,
                 p_estimated_cost   =p_estimated_cost,
                 p_task_checklist_status =p_task_checklist_status,
-                # p_status =p_status,
+                p_status =p_status,
                 p_activation_status =p_activation_status
                 )
             posts = Projects.objects.all().values().order_by('-id')
@@ -2602,7 +2615,7 @@ class ProjectsAPIView(APIView):
         p_estimated_cost         = data['p_estimated_cost']
         pc_ref                   = data['pc_ref_id']
         p_task_checklist_status  = data['p_task_checklist_status']
-        # p_status                 = data['p_status']
+        p_status                 = data['p_status']
         p_activation_status      = data['p_activation_status']
 
         
@@ -2647,7 +2660,7 @@ class ProjectsAPIView(APIView):
                                                 p_estimated_hours      =p_estimated_hours,
                                                 p_estimated_cost        =p_estimated_cost,
                                                 p_task_checklist_status      =p_task_checklist_status,
-                                                # p_status                    =p_status,
+                                                p_status                    =p_status,
                                                 p_activation_status           =p_activation_status
                                             )
             return Response({'result':{'status':'Updated'}})
@@ -2670,7 +2683,7 @@ class ProjectsAPIView(APIView):
         else:
             return Response({'result':{'status':'deleted'}})
 
-# @method_decorator([AutorizationRequired], name='dispatch')
+@method_decorator([AutorizationRequired], name='dispatch')
 class TaskProjectCategoriesApiView(APIView):
     def get(self,request):
         key = {'org_ref_id','page_number','data_per_page','pagination'}
@@ -2870,7 +2883,7 @@ class TaskProjectCategoriesApiView(APIView):
         else:
             return Response({'result':{'status':'deleted'}})
 
-# @method_decorator([AutorizationRequired], name='dispatch')
+@method_decorator([AutorizationRequired], name='dispatch')
 class ProjectCategoriesFilesTemplatesApiView(APIView):
     def get(self,request):
         id = request.query_params.get('id')
@@ -2999,7 +3012,7 @@ class ProjectCategoriesFilesTemplatesApiView(APIView):
         else:
             return Response({'result':{'status':'deleted'}})
 
-# @method_decorator([AutorizationRequired], name='dispatch')
+@method_decorator([AutorizationRequired], name='dispatch')
 class ProjectStatusMainCategoryApiView(APIView):
     def get(self,request):
         key = {'organization_id','page_number','data_per_page','pagination'}
@@ -3142,7 +3155,7 @@ class ProjectStatusMainCategoryApiView(APIView):
             return Response({'result':{'status':'deleted'}})
 
 
-# @method_decorator([AutorizationRequired], name='dispatch')
+@method_decorator([AutorizationRequired], name='dispatch')
 class ProjectHistoryApiView(APIView):
     def get(self,request):
         id = request.query_params.get('id')
@@ -3316,7 +3329,7 @@ class ProjectHistoryApiView(APIView):
             return Response({'result':{'status':'deleted'}})
 
 
-# @method_decorator([AutorizationRequired], name='dispatch')
+@method_decorator([AutorizationRequired], name='dispatch')
 class ProjectStatusSubCategoryApiView(APIView):
     def get(self,request):
         id = request.query_params.get('id')
@@ -3519,7 +3532,7 @@ class ProjectStatusSubCategoryApiView(APIView):
 
 
 
-# @method_decorator([AutorizationRequired], name='dispatch')
+@method_decorator([AutorizationRequired], name='dispatch')
 class ProjectFilesApiView(APIView):
     def get(self,request):
         id = request.query_params.get('id')
@@ -3643,7 +3656,7 @@ class ProjectFilesApiView(APIView):
         else:
             return Response({'result':{'status':'deleted'}})
 
-# @method_decorator([AutorizationRequired], name='dispatch')
+@method_decorator([AutorizationRequired], name='dispatch')
 class GeoZonesApiView(APIView):
     def get(self,request):
         id = request.query_params.get('id')
@@ -3753,7 +3766,7 @@ class GeoZonesApiView(APIView):
         else:
             return Response({'result':{'status':'deleted'}})
 
-# @method_decorator([AutorizationRequired], name='dispatch')
+@method_decorator([AutorizationRequired], name='dispatch')
 class GeoTimezonesApiView(APIView):
     def get(self,request):
         id = request.query_params.get('id')
@@ -3878,7 +3891,7 @@ class GeoTimezonesApiView(APIView):
         else:
             return Response({'result':{'status':'deleted'}})
 
-# @method_decorator([AutorizationRequired], name='dispatch')
+@method_decorator([AutorizationRequired], name='dispatch')
 class GeoCurrenciesApiView(APIView):
     def get(self,request):
         id = request.query_params.get('id')
@@ -4010,7 +4023,7 @@ class GeoCurrenciesApiView(APIView):
         else:
             return Response({'result':{'status':'deleted'}})
 
-# @method_decorator([AutorizationRequired], name='dispatch')
+@method_decorator([AutorizationRequired], name='dispatch')
 class GeoCountriesApiView(APIView):
     def get(self,request):
         id = request.query_params.get('id')
@@ -4126,7 +4139,7 @@ class GeoCountriesApiView(APIView):
             return Response({'result':{'status':'deleted'}})
 
 
-# @method_decorator([AutorizationRequired], name='dispatch')
+@method_decorator([AutorizationRequired], name='dispatch')
 class GeoStatesApiView(APIView):
     def get(self,request):
         id = request.query_params.get('id')
@@ -4236,7 +4249,7 @@ class GeoStatesApiView(APIView):
             return Response({'result':{'status':'deleted'}})
 
 
-# @method_decorator([AutorizationRequired], name='dispatch')
+@method_decorator([AutorizationRequired], name='dispatch')
 class GeoCitiesApiView(APIView):
     def get(self,request):
         id = request.query_params.get('id')
@@ -4356,7 +4369,7 @@ class GeoCitiesApiView(APIView):
 
 
 # I have not used any status code here do check this once
-# @method_decorator([AutorizationRequired], name='dispatch')
+@method_decorator([AutorizationRequired], name='dispatch')
 class GeoCountriesCurrenciesApiView(APIView):
     def get(self,request):
         id = request.query_params.get('id')
@@ -4466,7 +4479,7 @@ class GeoCountriesCurrenciesApiView(APIView):
         return Response({'result':{'status':'deleted'}})
 
 
-# @method_decorator([AutorizationRequired], name='dispatch')
+@method_decorator([AutorizationRequired], name='dispatch')
 class GeoContinentsApiView(APIView):
     def get(self,request):
         id = request.query_params.get('id')
@@ -4565,7 +4578,7 @@ class GeoContinentsApiView(APIView):
             return Response({'result':{'status':'deleted'}})
 
 
-# @method_decorator([AutorizationRequired], name='dispatch')
+@method_decorator([AutorizationRequired], name='dispatch')
 class GeoSubContinentsApiView(APIView):
     def get(self,request):
         id = request.query_params.get('id')
@@ -4670,7 +4683,7 @@ class GeoSubContinentsApiView(APIView):
         else:
             return Response({'result':{'status':'deleted'}})
 
-# @method_decorator([AutorizationRequired], name='dispatch')
+@method_decorator([AutorizationRequired], name='dispatch')
 class ProjectCategoriesView(APIView):
     def get(self,request):
         id = request.query_params.get('id')
@@ -4876,7 +4889,7 @@ class ProjectCategoriesView(APIView):
 
 
 #------------------------------------------------------------------------
-# @method_decorator([AutorizationRequired], name='dispatch')
+@method_decorator([AutorizationRequired], name='dispatch')
 class ProductDetailsView(APIView):
     def get(self,request):
         id = request.query_params.get('id')
@@ -5030,7 +5043,7 @@ class ProductDetailsView(APIView):
             return Response({'result':{'status':'deleted'}})
 
 
-# @method_decorator([AutorizationRequired], name='dispatch')
+@method_decorator([AutorizationRequired], name='dispatch')
 class OrganizationLeaveTypeApiView(APIView):
     def get(self,request):
         id = request.query_params.get('id')
@@ -5196,7 +5209,7 @@ class OrganizationLeaveTypeApiView(APIView):
             return Response({'result':{'status':'deleted'}})
 
 
-# @method_decorator([AutorizationRequired], name='dispatch')
+@method_decorator([AutorizationRequired], name='dispatch')
 class OrganizationCostCentersApiView(APIView):
     def get(self,request):
         id = request.query_params.get('id')
@@ -5313,7 +5326,7 @@ class OrganizationCostCentersApiView(APIView):
             return Response({'result':{'status':'deleted'}})
 
 
-# @method_decorator([AutorizationRequired], name='dispatch')
+@method_decorator([AutorizationRequired], name='dispatch')
 class OrganizationCostCentersLeaveTypeApiView(APIView):
     def get(self,request):
         id = request.query_params.get('id')
@@ -5474,7 +5487,7 @@ class OrganizationCostCentersLeaveTypeApiView(APIView):
         else:
             return Response({'result':{'status':'deleted'}})
 
-# @method_decorator([AutorizationRequired], name='dispatch')
+@method_decorator([AutorizationRequired], name='dispatch')
 class UsersLeaveMasterApiView(APIView):
     def get(self,request):
         id = request.query_params.get('id')
@@ -5603,7 +5616,7 @@ class UsersLeaveMasterApiView(APIView):
         else:
             return Response({'result':{'status':'deleted'}})
 
-# @method_decorator([AutorizationRequired], name='dispatch')
+@method_decorator([AutorizationRequired], name='dispatch')
 class OrganizationCostCentersYearListApiView(APIView):
     def get(self,request):
         id = request.query_params.get('id')
@@ -5711,7 +5724,7 @@ class OrganizationCostCentersYearListApiView(APIView):
         else:
             return Response({'result':{'status':'deleted'}})
 
-# @method_decorator([AutorizationRequired], name='dispatch')
+@method_decorator([AutorizationRequired], name='dispatch')
 class UsersLeaveApplicationsApiView(APIView):
     def get(self,request):
         id = request.query_params.get('id')
@@ -5880,7 +5893,7 @@ class UsersLeaveApplicationsApiView(APIView):
         else:
             return Response({'result':{'status':'deleted'}})
 
-# @method_decorator([AutorizationRequired], name='dispatch')
+@method_decorator([AutorizationRequired], name='dispatch')
 class UserLeaveAllotmentListApiView(APIView):
     def get(self,request):
         id = request.query_params.get('id')
@@ -6021,7 +6034,7 @@ class UserLeaveAllotmentListApiView(APIView):
             return Response({'result':{'status':'deleted'}})
 
 
-# @method_decorator([AutorizationRequired], name='dispatch')
+@method_decorator([AutorizationRequired], name='dispatch')
 class UserLeaveListApiView(APIView):
     def get(self,request):
         id = request.query_params.get('id')
@@ -6149,7 +6162,7 @@ class UserLeaveListApiView(APIView):
             return Response({'result':{'status':'deleted'}})
 
 
-# @method_decorator([AutorizationRequired], name='dispatch')
+@method_decorator([AutorizationRequired], name='dispatch')
 class ProjectCategoriesChecklistApiView(APIView):
     def get(self,request):
         id = request.query_params.get('id')
@@ -6268,7 +6281,7 @@ class ProjectCategoriesChecklistApiView(APIView):
             return Response({'result':{'status':'deleted'}})
 
 
-# @method_decorator([AutorizationRequired], name='dispatch')
+@method_decorator([AutorizationRequired], name='dispatch')
 class TaskProjectCategoriesChecklistApiView(APIView):
     def get(self,request):
         id = request.query_params.get('id')
@@ -6404,7 +6417,7 @@ class TaskProjectCategoriesChecklistApiView(APIView):
             return Response({'result':{'status':'deleted'}})
 
 
-# @method_decorator([AutorizationRequired], name='dispatch')
+@method_decorator([AutorizationRequired], name='dispatch')
 class TimesheetMasterApiView(APIView):
     def get(self,request):
         id = request.query_params.get('id')
@@ -6520,7 +6533,7 @@ class TimesheetMasterApiView(APIView):
         return Response({'result':{'status':'deleted'}})
 
 
-# @method_decorator([AutorizationRequired], name='dispatch')
+@method_decorator([AutorizationRequired], name='dispatch')
 class TimesheetMasterDetailsApiView(APIView):
     def get(self,request):
         id = request.query_params.get('id')
@@ -6672,7 +6685,7 @@ class TimesheetMasterDetailsApiView(APIView):
 
 
 
-# @method_decorator([AutorizationRequired], name='dispatch')
+@method_decorator([AutorizationRequired], name='dispatch')
 class UserApiView(APIView):
     def get(self,request):
         id = request.query_params.get('id')
@@ -7026,7 +7039,7 @@ class UserApiView(APIView):
 
 
 
-# @method_decorator([AutorizationRequired], name='dispatch')
+@method_decorator([AutorizationRequired], name='dispatch')
 class  PrefixSuffixApiView(APIView):
     def get(self,request):
         id = request.query_params.get('id')
@@ -7192,7 +7205,7 @@ class  PrefixSuffixApiView(APIView):
 
 
 
-# @method_decorator([AutorizationRequired], name='dispatch')
+@method_decorator([AutorizationRequired], name='dispatch')
 class  CenterApiView(APIView):
     def get(self, request):
         id = request.query_params.get('id')
@@ -7342,7 +7355,7 @@ class  CenterApiView(APIView):
         else:
             return Response({'result':{'status':'deleted'}})
 
-# @method_decorator([AutorizationRequired], name='dispatch')
+@method_decorator([AutorizationRequired], name='dispatch')
 class  PeopleApiView(GenericAPIView):
     def get(self,request):
         id = request.query_params.get('id')
@@ -7530,6 +7543,11 @@ class  PeopleApiView(GenericAPIView):
                     query = query | Q(user_id=entry.id)
 
                 r_cuser = UserRole.objects.filter(Q(user_role_name__icontains  = search_key))
+                if 'ignore_super_admin' in request.query_params:
+                    ignore_super_admin = request.query_params.get('ignore_super_admin')
+                    if ignore_super_admin == 'TRUE':
+                        r_cuser = r_cuser.exclude(user_role_name__istartswith="SUPER")
+
                 r_query = Q()
                 for r_entry in r_cuser:
                     r_query = r_query | Q(user_role_id=r_entry.id)
@@ -7541,10 +7559,10 @@ class  PeopleApiView(GenericAPIView):
                     all_data =[]
                     
                 else:
-                    all_data = People.objects.filter(Q(organization_id=organization_id) & (query | r_query)).values().order_by('-id')
+                    all_data = People.objects.filter(Q(organization_id=organization_id) & (query | r_query)).values().order_by('id')
                     print(all_data,"IN===search_key")
             else:
-                all_data = People.objects.filter(organization_id=organization_id).values().order_by('-id')
+                all_data = People.objects.filter(organization_id=organization_id).values().order_by('id')
                 print("else===search_key")
 
             
@@ -7779,7 +7797,7 @@ class  PeopleApiView(GenericAPIView):
                     u_status=u_status,
                     user_role_id=user_role_id,
                     )
-                
+            print(data,'data==allll')
             people_data = People.objects.filter(user_id=pk).update(
                         user_reporting_manager_ref_id = user_reporting_manager_ref_id,
                         # organization_id=organization_id,
@@ -7787,7 +7805,7 @@ class  PeopleApiView(GenericAPIView):
                         prefix_suffix_id = prefix_suffix_id,
                         department_id = department_id,
                         user_role_id=user_role_id,
-                        role_id = org_role_id,
+                        # role_id = org_role_id,
                         cost_center_id = cost_center_id,
                         tags = tags,
                         )
@@ -7846,7 +7864,7 @@ class  PeopleApiView(GenericAPIView):
 
 
 
-# @method_decorator([AutorizationRequired], name='dispatch')
+@method_decorator([AutorizationRequired], name='dispatch')
 class  TagApiView(APIView):
     def get(self,request):
         key = {'organization_id','page_number','data_per_page','pagination'}
@@ -8004,7 +8022,7 @@ class  TagApiView(APIView):
 
 
 
-# @method_decorator([AutorizationRequired], name='dispatch')
+@method_decorator([AutorizationRequired], name='dispatch')
 class  TimeSheetApiView(APIView):
     def get(self,request):
         id = request.query_params.get('id')
@@ -8103,7 +8121,7 @@ class  TimeSheetApiView(APIView):
 
 
 
-# @method_decorator([AutorizationRequired], name='dispatch')
+@method_decorator([AutorizationRequired], name='dispatch')
 class  MasterLeaveTypesApiView(APIView):
     
     def get(self,request):
@@ -8364,7 +8382,7 @@ class  MasterLeaveTypesApiView(APIView):
         else:
             return Response({'result':{'status':'deleted'}})
 
-
+@method_decorator([AutorizationRequired], name='dispatch')
 class  BalanceApiView(APIView):
     def get(self, request):
         user_id = request.query_params.get('user_id')
@@ -8408,7 +8426,7 @@ class  BalanceApiView(APIView):
                     
                     if total_leaves_left > 0:
                         if days and total_leaves_left:
-                            if float(total_leaves_left) > float(days):
+                            if float(total_leaves_left) >= float(days):
                                 balance = float(total_leaves_left) - float(days)
                                 result_dic['accrude_monthly'] = "accrude monthly leave is added to total leaves"
                                 result_dic['alloted_leaves'] = float(no_of_leaves)
@@ -8616,7 +8634,7 @@ class  BalanceApiView(APIView):
     #             }},status=status.HTTP_404_NOT_FOUND)
                 
 from django.db.models import Q, Sum
-# @method_decorator([AutorizationRequired], name='dispatch')
+@method_decorator([AutorizationRequired], name='dispatch')
 class  leaveDetailsApiView(APIView):
     def get(self, request):
         res = GetCheckPermission(request)
@@ -8815,7 +8833,7 @@ class  leaveDetailsApiView(APIView):
                 }
             })
 
-
+@method_decorator([AutorizationRequired], name='dispatch')
 class  leaveApplicationStateChangeApiView(APIView):
     def post(self,request):
         res = CheckPermission(request)
@@ -8935,7 +8953,7 @@ def CheckLeaveSendEmailTOCC(user_id,days,leaveApplication_from_date,leaveApplica
 
     return 1
 
-# @method_decorator([AutorizationRequired], name='dispatch')
+@method_decorator([AutorizationRequired], name='dispatch')
 class  leaveApplicationApiView(APIView):
     def get(self,request):
         res = GetCheckPermission(request)
@@ -9565,7 +9583,7 @@ class  leaveApplicationApiView(APIView):
         else:
             return Response({'result':{'status':'deleted'}})
 
-# @method_decorator([AutorizationRequired], name='dispatch')
+@method_decorator([AutorizationRequired], name='dispatch')
 class  ProfileApiView(APIView):
     def get(self,request):
         id = request.query_params.get('id')
@@ -9790,11 +9808,11 @@ class  ProfileApiView(APIView):
             return Response({'result':{'status':'deleted'}})
 
 
-# @method_decorator([AutorizationRequired], name='dispatch')
+@method_decorator([AutorizationRequired], name='dispatch')
 class DashBoardview(APIView):
     def post(self,request):
         data = request.data
-        
+        print(request.headers,'request====>tokencheck==header==check')
         all_keys = {'user_id','organization_id'}
         if all_keys <= data.keys():
             user_id = data['user_id']
@@ -9840,7 +9858,7 @@ class DashBoardview(APIView):
                 }},status=status.HTTP_404_NOT_FOUND)
 
         
-
+@method_decorator([AutorizationRequired], name='dispatch')
 class SubscriptionPlanAPIView(APIView):
     def get(self,request):
         id = request.query_params.get('id')
@@ -9924,7 +9942,8 @@ class SubscriptionPlanAPIView(APIView):
             return Response({'error':{'message':'Record not found!',
                 'status_code':status.HTTP_404_NOT_FOUND,
                 }},status=status.HTTP_404_NOT_FOUND)
-    
+
+@method_decorator([AutorizationRequired], name='dispatch')
 class UserRoleApiView(APIView):
     def get(self,request):
 
@@ -10207,7 +10226,7 @@ class UserRoleApiView(APIView):
             return Response({'result':{'status':'deleted'}})
 
 
-
+@method_decorator([AutorizationRequired], name='dispatch')
 class ManagerReviewApiView(APIView):
     
     def get(self,request):
@@ -10656,7 +10675,7 @@ class ManagerReviewApiView(APIView):
 
 
 
-
+@method_decorator([AutorizationRequired], name='dispatch')
 class AddOnLeaveRequestApiView(APIView):
     def get(self,request):
         res = GetCheckPermission(request)
@@ -10872,7 +10891,7 @@ class AddOnLeaveRequestApiView(APIView):
 
 
 
-
+@method_decorator([AutorizationRequired], name='dispatch')
 class OfficeWorkingDaysApiView(APIView):
     def get(self,request):
         all_keys = {'organization_id'}
@@ -10955,6 +10974,7 @@ class OfficeWorkingDaysApiView(APIView):
 
 
 import requests
+@method_decorator([AutorizationRequired], name='dispatch')
 class CountryStateCityApiView(APIView):
 
     def post(self,request):
@@ -11052,3 +11072,8 @@ class CountryStateCityApiView(APIView):
         # result = data[0]['auth_token']
    
 # return Response(response_result['result'], headers=response,status= status.HTTP_200_OK)
+
+def check_authorization_header(request):
+    auth_header = request.headers.get('Authorization', 'No Authorization header found')
+    auth_header_all = dict(request.headers)  # Convert request.headers to a dictionary
+    return JsonResponse({'Authorization': auth_header, 'all_headers': auth_header_all})

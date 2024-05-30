@@ -669,12 +669,18 @@ class TimesheetApiViews(APIView):
         date = data.get('date')
         response = data.get("response")
         
-        if int(reporting_manager_ref_id) == 0:
+        if reporting_manager_ref_id is None or int(reporting_manager_ref_id) == 0:
+            
             return Response({
-                    'error':{'message':'Reporting manager is mandatory',
+                    'error':{'message':'Contact admin to add reporting manager',
                     'detail':"Reporting manager cannot be null or 0",
                     'status_code':status.HTTP_404_NOT_FOUND,
                     }},status=status.HTTP_404_NOT_FOUND)
+            return Response({
+                    'error':{'message':'You organization do not have Timesheets Approval Config.',
+                    'description':"Timesheets Approval Config",
+                    'status_code':status.HTTP_404_NOT_FOUND,
+                    }},status=status.HTTP_404_NOT_FOUND) 
 
         if date == None: 
             return Response({
