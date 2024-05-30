@@ -33,7 +33,7 @@ RUN python manage.py collectstatic --noinput
 COPY nginx.conf /etc/nginx/sites-available/default
 
 # Expose the port Gunicorn will run on
-EXPOSE 8000
+EXPOSE 8001
 
 # Install Gunicorn
 RUN pip install gunicorn
@@ -42,4 +42,4 @@ RUN pip install gunicorn
 CMD service nginx start && \
     python manage.py makemigrations && \
     python manage.py migrate && \
-    gunicorn --bind 0.0.0.0:8000 eztimeproject.wsgi:application
+    gunicorn --bind 0.0.0.0:8001 eztimeproject.wsgi:application
