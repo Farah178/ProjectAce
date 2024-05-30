@@ -22,7 +22,6 @@ def MyPagination(data, page_number, data_per_page,request):
     base_url = request.build_absolute_uri('?page_number')
 
     paginator = Paginator(data, data_per_page)
-        paginator = Paginator(data, data_per_page)
     
     try:
         page = paginator.page(page_number)
