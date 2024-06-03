@@ -423,9 +423,9 @@ class TimesheetApiViews(APIView):
                         y['created_by_phone_no'] = cuser.u_phone_no
 
 
-                    yet_to_be_approved_count = TimeSheets.objects.filter(Q(organization_id=organization_id) & Q(approved_state='YET_TO_APPROVED')& Q(created_by_id=user_id)).count()
-                    approved_count = TimeSheets.objects.filter(Q(organization_id=organization_id) & Q(approved_state='APPROVED')& Q(created_by_id=user_id)).count()
-                    declined_count = TimeSheets.objects.filter(Q(organization_id=organization_id) & Q(approved_state='DECLINED')& Q(created_by_id=user_id)).count()
+                    yet_to_be_approved_count = TimeSheets.objects.filter(Q(organization_id=organization_id) & Q(approved_state='YET_TO_APPROVED')& Q(created_by_id=user_id)& Q(applied_date_timestamp__gte=fd) & Q(applied_date_timestamp__lte=td)).count()
+                    approved_count = TimeSheets.objects.filter(Q(organization_id=organization_id) & Q(approved_state='APPROVED')& Q(created_by_id=user_id)& Q(applied_date_timestamp__gte=fd) & Q(applied_date_timestamp__lte=td)).count()
+                    declined_count = TimeSheets.objects.filter(Q(organization_id=organization_id) & Q(approved_state='DECLINED')& Q(created_by_id=user_id)& Q(applied_date_timestamp__gte=fd) & Q(applied_date_timestamp__lte=td)).count()
 
                     yet_to_be_approved_queryset = TimeSheets.objects.filter(Q(organization_id=organization_id) & Q(approved_state='YET_TO_APPROVED')& Q(created_by_id=user_id))
                     approved_queryset = TimeSheets.objects.filter(Q(organization_id=organization_id) & Q(approved_state='APPROVED')& Q(created_by_id=user_id))
@@ -947,11 +947,17 @@ class TodayapprovalTimesheetAPIView(APIView):
 
                 print(r_query,'r_query====>')
                 if r_query:
-                    queryset = TimeSheets.objects.filter(Q(organization_id=organization_id) & r_query & Q(approved_state=approved_state)& Q(created_date_time__date=created_date_time) ).values().order_by('-created_date_time')
+                    if approved_state == "YET_TO_APPROVED":
+                        queryset = TimeSheets.objects.filter(Q(organization_id=organization_id) & r_query & Q(approved_state=approved_state)& Q(created_date_time__date=created_date_time) ).values().order_by('-approved_date_time')
+                    else:
+                        queryset = TimeSheets.objects.filter(Q(organization_id=organization_id) & r_query & Q(approved_state=approved_state)& Q(approved_date_time__date=created_date_time) ).values().order_by('-approved_date_time')
                 else:
                     queryset = []
             else:    
-                queryset = TimeSheets.objects.filter(Q(organization_id=organization_id) & Q(approved_state=approved_state) & Q(created_date_time__date=created_date_time)).values().order_by('-created_date_time')
+                if approved_state == "YET_TO_APPROVED":
+                    queryset = TimeSheets.objects.filter(Q(organization_id=organization_id) & Q(approved_state=approved_state) & Q(created_date_time__date=created_date_time)).values().order_by('-approved_date_time')
+                else:
+                    queryset = TimeSheets.objects.filter(Q(organization_id=organization_id) & Q(approved_state=approved_state) & Q(approved_date_time__date=created_date_time)).values().order_by('-approved_date_time')
 
             if approved_state != "YET_TO_APPROVED":
                 for i in queryset:
@@ -1580,6 +1586,28 @@ class DeadLineCrossedTimesheetAPIView(APIView):
                     print(td,'To_Dateee======')
                     queryset1 = TimeSheets.objects.filter( Q(reporting_manager_ref_id=user_id) & Q(applied_date_timestamp__gte=fd)& Q(applied_date_timestamp__lt=td) & Q(approved_state="YET_TO_APPROVED")).values().order_by('-created_date_time')
                     deadline_list = []
+                    
+
+                    if 'search_key' in request.query_params:
+                        search_key = request.query_params.get('search_key')
+
+                        r_cuser = CustomUser.objects.filter(Q(id=user_id) & Q(u_first_name__icontains  = search_key))
+                        r_query = Q()
+                        for r_entry in r_cuser:
+                            r_query = r_query | Q(created_by_id=r_entry.id)
+                        print(r_query,'r_query=======1223')
+
+                        
+                        if r_query:
+                            queryset1 = TimeSheets.objects.filter( Q(reporting_manager_ref_id=user_id) & r_query & Q(applied_date_timestamp__gte=fd)& Q(applied_date_timestamp__lt=td) & Q(approved_state="YET_TO_APPROVED")).values().order_by('-created_date_time')
+                            
+                        else:
+                            queryset1 =[]
+                    else:
+                        queryset1 = TimeSheets.objects.filter( Q(reporting_manager_ref_id=user_id) & Q(applied_date_timestamp__gte=fd)& Q(applied_date_timestamp__lt=td) & Q(approved_state="YET_TO_APPROVED")).values().order_by('-created_date_time')
+
+
+
                     for i in queryset1:
                         if (i['approved_date_timestamp'] != None) | (i['approved_date_timestamp'] != ''):
                             c_u_data = CustomUser.objects.get(id=i['created_by_id'])
@@ -1603,7 +1631,7 @@ class DeadLineCrossedTimesheetAPIView(APIView):
                                 created_date = str(final_date)+'/'+y[1]+'/'+y[2]
                                 to_applied_date_time_stamp = time.mktime(datetime.datetime.strptime(created_date, "%d/%m/%Y").timetuple())
                             else:
-                                remainder = last_date_of_month - final_date
+                                remainder = final_date - last_date_of_month
                                 add = int(y[1])+1
                                 created_date = str(remainder)+'/'+str(add)+'/'+y[2]
                                 to_applied_date_time_stamp = time.mktime(datetime.datetime.strptime(created_date, "%d/%m/%Y").timetuple())
@@ -1642,7 +1670,27 @@ class DeadLineCrossedTimesheetAPIView(APIView):
                     # print(fd,'from_Dateee======')
                     # print(td,'To_Dateee======')
                     
-                    queryset1 = TimeSheets.objects.filter( Q(reporting_manager_ref_id=user_id) &  Q(approved_state="YET_TO_APPROVED")).values().order_by('-created_date_time')
+                    # queryset1 = TimeSheets.objects.filter( Q(reporting_manager_ref_id=user_id) &  Q(approved_state="YET_TO_APPROVED")).values().order_by('-created_date_time')
+
+                    if 'search_key' in request.query_params:
+                        search_key = request.query_params.get('search_key')
+
+                        r_cuser = CustomUser.objects.filter(Q(id=user_id) & Q(u_first_name__icontains  = search_key))
+                        r_query = Q()
+                        for r_entry in r_cuser:
+                            r_query = r_query | Q(created_by_id=r_entry.id)
+                        print(r_query,'r_query=======1223')
+
+                        
+                        if r_query:
+                            queryset1 = TimeSheets.objects.filter( Q(reporting_manager_ref_id=user_id) &  r_query & Q(approved_state="YET_TO_APPROVED")).values().order_by('-created_date_time')
+                        else:
+                            queryset1 =[]
+                    else:
+                        queryset1 = TimeSheets.objects.filter( Q(reporting_manager_ref_id=user_id) & Q(approved_state="YET_TO_APPROVED")).values().order_by('-created_date_time')
+
+
+
                     deadline_list = []
                     for i in queryset1:
                         if (i['approved_date_timestamp'] != None) | (i['approved_date_timestamp'] != ''):
@@ -1660,16 +1708,27 @@ class DeadLineCrossedTimesheetAPIView(APIView):
                             approval_period_in_days = timesheet_config_data.approval_period_in_days
 
                             final_date =  int(y[0]) + int(approval_period_in_days)
+                            print(int(y[0]),'int(y[0])')
+                            print(int(approval_period_in_days),'int(y[0])')
                             last_date_of_month = calendar.monthrange(int(y[2]), int(y[1]))[1]
                             print(last_date_of_month,'last_date_of_month')
-
+                            
+                            print(final_date,'final_date=====1',last_date_of_month,'last_date_of_month=====1')
                             if final_date <= last_date_of_month:
+                                print(last_date_of_month,'last_date_of_month')
+                                print(final_date,'final_date')
                                 created_date = str(final_date)+'/'+y[1]+'/'+y[2]
+                                print(created_date,'created_date')
                                 to_applied_date_time_stamp = time.mktime(datetime.datetime.strptime(created_date, "%d/%m/%Y").timetuple())
                             else:
-                                remainder = last_date_of_month - final_date
+                                remainder =  final_date - last_date_of_month
+                                print(final_date,'final_date-else')
+                                print(last_date_of_month,'last_date_of_month-else')
+                                print(remainder,'remainder-else')
                                 add = int(y[1])+1
+                                print(add,'add-else')
                                 created_date = str(remainder)+'/'+str(add)+'/'+y[2]
+                                print(created_date,'created_date-else')
                                 to_applied_date_time_stamp = time.mktime(datetime.datetime.strptime(created_date, "%d/%m/%Y").timetuple())
                             
                             # if x[1] == z[1]:
