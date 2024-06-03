@@ -24,7 +24,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-b+$c%lkixc=a0efyz4+_totmnwzj@#_m)(-xweihk%yu9%xi(@'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ["*",'143.110.184.45', 'https://eztime.thestorywallcafe.com', 'eztime.thestorywallcafe.com', '127.0.0.1',"20.197.54.1","projectaceuat.thestorywallcafe.com","https://projectaceuat.thestorywallcafe.com","www.projectaceuat.thestorywallcafe.com"]
 
