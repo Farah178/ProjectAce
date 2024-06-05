@@ -26,7 +26,14 @@ COPY DigiCertGlobalRootCA.crt.pem /eztime/django/ssl/DigiCertGlobalRootCA.crt.pe
 COPY requirements.txt /eztime/django/requirements.txt
 RUN pip install -r requirements.txt
 
-# Collect static files
+# Create necessary directories
+RUN mkdir -p /eztime/django/site/static
+RUN mkdir -p /eztime/django/site/static/frontend
+
+# Copy the built front-end dist folder into the container
+COPY dist /eztime/django/site/static/frontend
+
+# Collect static files after copying the dist folder
 RUN python manage.py collectstatic --noinput
 
 # Copy Nginx configuration file

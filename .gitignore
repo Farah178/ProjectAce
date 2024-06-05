@@ -4,7 +4,7 @@
 
 # Ignore static files directory
 /static/
-
+/site
 # Ignore media files directory
 /media/
 
@@ -36,3 +36,4 @@ Thumbs.db
 
 # Ignore logs
 *.log
+ 

@@ -26,7 +26,7 @@ SECRET_KEY = 'django-insecure-b+$c%lkixc=a0efyz4+_totmnwzj@#_m)(-xweihk%yu9%xi(@
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["*",'143.110.184.45', 'https://eztime.thestorywallcafe.com', 'eztime.thestorywallcafe.com', '127.0.0.1',"20.197.54.1","projectaceuat.thestorywallcafe.com","https://projectaceuat.thestorywallcafe.com","www.projectaceuat.thestorywallcafe.com"]
+ALLOWED_HOSTS = ["*",'143.110.184.45', 'https://eztime.thestorywallcafe.com', 'eztime.thestorywallcafe.com', '127.0.0.1',"20.197.54.1","projectaceuat.thestorywallcafe.com","https://projectaceuat.thestorywallcafe.com","www.projectaceuat.thestorywallcafe.com",'http://0.0.0.0:8001','0.0.0.0:8001']
 
 # Application definition
 
@@ -138,7 +138,8 @@ DATABASES = {
         'PORT': '3306',
         'OPTIONS': {
             'ssl': {
-                'ca': '/eztime/django/ssl/DigiCertGlobalRootCA.crt.pem',
+                # 'ca': '/eztime/django/ssl/DigiCertGlobalRootCA.crt.pem',
+                'ca': os.path.join(BASE_DIR, 'DigiCertGlobalRootCA.crt.pem'),
                 }
             }     
         }
@@ -190,16 +191,33 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
 
-STATIC_URL = '/static/'
-MEDIA_URL = '/media/'
-STATIC_ROOT="/eztime/static/"
-
-# STATIC_ROOT="/eztime/site/public/static"
-# MEDIA_ROOT="/eztime/site/public/media"
 
 # STATICFILES_DIRS = [
-#         '/eztime/site/public/static/frontend'
-# ] 
+#     os.path.join(BASE_DIR, 'site', 'static', 'frontend')
+# ]
+# STATIC_URL = '/static/'
+# STATIC_ROOT = os.path.join(BASE_DIR, 'site', 'static')
+
+# # Media files
+# MEDIA_URL = '/media/'
+# MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+
+# Static files (CSS, JavaScript, Images)
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'site', 'static', 'frontend')
+]
+STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'site', 'static')
+
+# Media files
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+
+
+
+
 
 
 

@@ -7537,7 +7537,7 @@ class  PeopleApiView(GenericAPIView):
                 # for c_entry in c_cuser:
                 #     c_query = c_query | Q(center_id=c_entry.id)
 
-                cuser = CustomUser.objects.filter(Q(center_id__center_name = search_key) | Q(u_first_name__icontains  = search_key) | Q(u_designation__icontains  = search_key) | Q(u_status__icontains  = search_key))
+                cuser = CustomUser.objects.filter(Q(center_id__center_name__icontains = search_key) | Q(u_first_name__icontains  = search_key) | Q(u_designation__icontains  = search_key) | Q(u_status__icontains  = search_key))
                 query = Q()
                 for entry in cuser:
                     query = query | Q(user_id=entry.id)
