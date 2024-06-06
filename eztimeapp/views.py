@@ -269,7 +269,7 @@ class RegistrationApiVew(APIView):
                                     )
                 
                 file_stored_path = '/eztime/django/site/media/photo/'
-                project_base_url = 'https://eztime.thestorywallcafe.com/'
+                project_base_url = 'https://projectaceuat.thestorywallcafe.com/'
                 
                 if profile_base64 != '':
                     stored_path = StoreBase64ReturnPath(profile_base64, file_stored_path, project_base_url)
@@ -790,7 +790,7 @@ class OrganizationApiView(APIView):
                 conctact_person_password=conctact_person_password,
                 conctact_person_phone_number=conctact_person_phone_number,)
                 if org_logo:
-                        check_data.org_logo_path = 'https://eztime.thestorywallcafe.com/media/org_logo/'+ (str(check_data.org_logo)).split('org_logo/')[1]
+                        check_data.org_logo_path = 'https://projectaceuat.thestorywallcafe.com/media/org_logo/'+ (str(check_data.org_logo)).split('org_logo/')[1]
                         # check_data.file_attachment_path = 'http://127.0.0.1:8000/media/file_attachment/'+ (str(check_data.file_attachment)).split('file_attachment/')[1]
                         check_data.save()
                 
@@ -977,7 +977,7 @@ class OrganizationApiView(APIView):
                 )
             check_data = Organization.objects.get(id=pk)
             if org_logo:
-                    check_data.org_logo_path = 'https://eztime.thestorywallcafe.com/media/org_logo/'+ (str(check_data.org_logo)).split('org_logo/')[1]
+                    check_data.org_logo_path = 'https://projectaceuat.thestorywallcafe.com/media/org_logo/'+ (str(check_data.org_logo)).split('org_logo/')[1]
                     # check_data.file_attachment_path = 'http://127.0.0.1:8000/media/file_attachment/'+ (str(check_data.file_attachment)).split('file_attachment/')[1]
                     check_data.save()
             return Response({'result':{'status':'Updated','message':result}})
@@ -2766,7 +2766,7 @@ class TaskProjectCategoriesApiView(APIView):
                     )
 
                 file_stored_path = '/eztime/django/site/media/file_attachment/'
-                project_base_url = 'https://eztime.thestorywallcafe.com/'
+                project_base_url = 'https://projectaceuat.thestorywallcafe.com/'
                 temp_list = []
                 for i in file_templates_list:
                     print(i['file_base_64'],'file_base_64')
@@ -2830,7 +2830,7 @@ class TaskProjectCategoriesApiView(APIView):
                         )
                     print("======")
                     file_stored_path = '/eztime/django/site/media/file_attachment/'
-                    project_base_url = 'https://eztime.thestorywallcafe.com/'
+                    project_base_url = 'https://projectaceuat.thestorywallcafe.com/'
                     temp_list = []
                     for i in file_templates_list:
                         print(i['file_base_64'],'file_base_64')
@@ -4751,7 +4751,7 @@ class ProjectCategoriesView(APIView):
         ss.write(imgdata1)
         ss.close()
         # file_attachment_path='http://127.0.0.1:8000/media/file_attachment/'+ file_attachment.name
-        # file_attachment_path='https://eztime.thestorywallcafe.com/media/'+file_attachment
+        # file_attachment_path='https://projectaceuat.thestorywallcafe.com/media/'+file_attachment
         # print(file_attachment_path,'pathhh')
         selected_page_no =1 
         page_number = request.GET.get('page')
@@ -4771,7 +4771,7 @@ class ProjectCategoriesView(APIView):
                                             billable_type=billable_type,)
                                             # file_attachment_path=file_attachment_path)
             if file_attachment:
-                check_data.file_attachment_path = 'https://eztime.thestorywallcafe.com/media/'+ (str(fname1))
+                check_data.file_attachment_path = 'https://projectaceuat.thestorywallcafe.com/media/'+ (str(fname1))
                 check_data.save()
             posts = ProjectCategories.objects.all().values().order_by('-id')
             paginator = Paginator(posts,10)
@@ -4803,7 +4803,7 @@ class ProjectCategoriesView(APIView):
         billable_type= data.get('billable_type')
         file_attachment = data['file_attachment']
         # file_attachment_path='http://127.0.0.1:8000/media/file_attachment/'+ file_attachment.name
-        # file_attachment_path='https://eztime.thestorywallcafe.com/media/'+file_attachment
+        # file_attachment_path='https://projectaceuat.thestorywallcafe.com/media/'+file_attachment
         # print(file_attachment_path,'pathhh')
         if file_attachment == '':
             print('in if nulll looopp') 
@@ -4864,7 +4864,7 @@ class ProjectCategoriesView(APIView):
             check_data = ProjectCategories.objects.get(id=pk)
             if file_attachment:
                     print(check_data.file_attachment,"this is file")
-                    check_data.file_attachment_path = 'https://eztime.thestorywallcafe.com/media/file_attachment/'+ (str(check_data.file_attachment))
+                    check_data.file_attachment_path = 'https://projectaceuat.thestorywallcafe.com/media/file_attachment/'+ (str(check_data.file_attachment))
                     
                     check_data.save()
             return Response({'result':{'status':'Updated'}})
@@ -7711,7 +7711,7 @@ class  PeopleApiView(GenericAPIView):
                         )
 
             file_stored_path = '/eztime/django/site/media/photo/'
-            project_base_url = 'https://eztime.thestorywallcafe.com/'
+            project_base_url = 'https://projectaceuat.thestorywallcafe.com/'
             print(profile_base64,'profile_base64===>')
             if profile_base64 != '':
                 print("In_profile_base64")
@@ -7811,7 +7811,7 @@ class  PeopleApiView(GenericAPIView):
                         )
 
             file_stored_path = '/eztime/django/site/media/photo/'
-            project_base_url = 'https://eztime.thestorywallcafe.com/'
+            project_base_url = 'https://projectaceuat.thestorywallcafe.com/'
                 
             if profile_base64 != '':
                 user_data = CustomUser.objects.get(id=pk)
@@ -9427,7 +9427,7 @@ class  leaveApplicationApiView(APIView):
         try:
 
             file_stored_path = '/eztime/django/site/media/leave_files/'
-            project_base_url = 'https://eztime.thestorywallcafe.com/'
+            project_base_url = 'https://projectaceuat.thestorywallcafe.com/'
             leave_application_file_attachment=data.get('leave_application_file_attachment')
 
             if leave_application_file_attachment != '':
@@ -9522,7 +9522,7 @@ class  leaveApplicationApiView(APIView):
         
         try:
             file_stored_path = '/eztime/django/site/media/leave_files/'
-            project_base_url = 'https://eztime.thestorywallcafe.com/'
+            project_base_url = 'https://projectaceuat.thestorywallcafe.com/'
             leave_application_file_attachment=data.get('leave_application_file_attachment')
 
             if leave_application_file_attachment != '':
@@ -9683,7 +9683,7 @@ class  ProfileApiView(APIView):
                 )
             if user_profile_photo:
                 # profile_data.photo_path = 'http://127.0.0.1:8000/media/user_profile_photo/'+ (str(profile_data.user_profile_photo)).split('user_profile_photo/')[1]
-                profile_data.photo_path = 'https://eztime.thestorywallcafe.com/media/user_profile_photo/'+ (str(profile_data.user_profile_photo)).split('user_profile_photo/')[1]
+                profile_data.photo_path = 'https://projectaceuat.thestorywallcafe.com/media/user_profile_photo/'+ (str(profile_data.user_profile_photo)).split('user_profile_photo/')[1]
                 profile_data.save()
             posts = Profile.objects.all().values().order_by('-id')
             paginator = Paginator(posts,10)
@@ -9784,7 +9784,7 @@ class  ProfileApiView(APIView):
             profile_data = Profile.objects.get(id=pk)
             if user_profile_photo:
                 # profile_data.photo_path = 'http://127.0.0.1:8000/media/user_profile_photo/'+ (str(profile_data.user_profile_photo)).split('user_profile_photo/')[1]
-                profile_data.photo_path = 'https://eztime.thestorywallcafe.com/media/user_profile_photo/'+ (str(profile_data.user_profile_photo)).split('user_profile_photo/')[1]
+                profile_data.photo_path = 'https://projectaceuat.thestorywallcafe.com/media/user_profile_photo/'+ (str(profile_data.user_profile_photo)).split('user_profile_photo/')[1]
                 profile_data.save()
             return Response({'result':{'status':'Updated'}})
         except IntegrityError as e:
@@ -10841,7 +10841,7 @@ class AddOnLeaveRequestApiView(APIView):
         try:
 
             file_stored_path = '/eztime/django/site/media/leave_files/'
-            project_base_url = 'https://eztime.thestorywallcafe.com/'
+            project_base_url = 'https://projectaceuat.thestorywallcafe.com/'
             leave_application_file_attachment=data.get('leave_application_file_attachment')
 
             if leave_application_file_attachment != '':
