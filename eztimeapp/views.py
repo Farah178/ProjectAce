@@ -268,7 +268,7 @@ class RegistrationApiVew(APIView):
                                     tags = tags,
                                     )
                 
-                file_stored_path = '/eztime/site/public/media/photo/'
+                file_stored_path = '/eztime/django/site/media/photo/'
                 project_base_url = 'https://eztime.thestorywallcafe.com/'
                 
                 if profile_base64 != '':
@@ -745,7 +745,7 @@ class OrganizationApiView(APIView):
             extension_data = re.split(':|;', data_split)[1] 
             guess_extension_data = guess_extension(extension_data)
 
-            filename1 = "/eztime/site/public/media/org_logo/"+org_name+guess_extension_data
+            filename1 = "/eztime/django/site/media/org_logo/"+org_name+guess_extension_data
             # filename1 = "D:/EzTime/eztimeproject/media/photo/"+name+'.png'
             fname1 = '/org_logo/'+org_name+guess_extension_data
             ss=  open(filename1, 'wb')
@@ -939,7 +939,7 @@ class OrganizationApiView(APIView):
         data_split = org_logo.split(';base64,')[0]
         extension_data = re.split(':|;', data_split)[1] 
         guess_extension_data = guess_extension(extension_data)
-        filename1 = "/eztime/site/public/media/org_logo/"+org_name+guess_extension_data
+        filename1 = "/eztime/django/site/media/org_logo/"+org_name+guess_extension_data
         # filename1 = "D:/EzTime/eztimeproject/media/photo/"+name+'.png'
         fname1 = '/org_logo/'+org_name+guess_extension_data
         ss=  open(filename1, 'wb')
@@ -2765,7 +2765,7 @@ class TaskProjectCategoriesApiView(APIView):
                     tpc_status= "PENDING"
                     )
 
-                file_stored_path = '/eztime/site/public/media/file_attachment/'
+                file_stored_path = '/eztime/django/site/media/file_attachment/'
                 project_base_url = 'https://eztime.thestorywallcafe.com/'
                 temp_list = []
                 for i in file_templates_list:
@@ -2829,7 +2829,7 @@ class TaskProjectCategoriesApiView(APIView):
                         task_list = task_list,
                         )
                     print("======")
-                    file_stored_path = '/eztime/site/public/media/file_attachment/'
+                    file_stored_path = '/eztime/django/site/media/file_attachment/'
                     project_base_url = 'https://eztime.thestorywallcafe.com/'
                     temp_list = []
                     for i in file_templates_list:
@@ -4743,7 +4743,7 @@ class ProjectCategoriesView(APIView):
         data_split = file_attachment.split(';base64,')[0]
         extension_data = re.split(':|;', data_split)[1] 
         guess_extension_data = guess_extension(extension_data)
-        filename1 = "/eztime/site/public/media/file_attachment/"+pc_name+guess_extension_data
+        filename1 = "/eztime/django/site/media/file_attachment/"+pc_name+guess_extension_data
         # filename1 = "/Users/apple/EzTime/eztimeproject/media/photo"+first_name+guess_extension_data
         fname1 = '/file_attachment/'+pc_name+guess_extension_data
         ss=  open(filename1, 'wb')
@@ -4838,7 +4838,7 @@ class ProjectCategoriesView(APIView):
             extension_data = re.split(':|;', data_split)[1] 
             guess_extension_data = guess_extension(extension_data)
 
-            filename1 = "/eztime/site/public/media/file_attachment/"+pc_name+guess_extension_data
+            filename1 = "/eztime/django/site/media/file_attachment/"+pc_name+guess_extension_data
             # filename1 = "/Users/apple/EzTime/eztimeproject/media/photo"+first_name+guess_extension_data
             fname1 = '/file_attachment/'+pc_name+guess_extension_data
             ss=  open(filename1, 'wb')
@@ -7710,7 +7710,7 @@ class  PeopleApiView(GenericAPIView):
                         tags = tags,
                         )
 
-            file_stored_path = '/eztime/site/public/media/photo/'
+            file_stored_path = '/eztime/django/site/media/photo/'
             project_base_url = 'https://eztime.thestorywallcafe.com/'
             print(profile_base64,'profile_base64===>')
             if profile_base64 != '':
@@ -7810,7 +7810,7 @@ class  PeopleApiView(GenericAPIView):
                         tags = tags,
                         )
 
-            file_stored_path = '/eztime/site/public/media/photo/'
+            file_stored_path = '/eztime/django/site/media/photo/'
             project_base_url = 'https://eztime.thestorywallcafe.com/'
                 
             if profile_base64 != '':
@@ -9426,7 +9426,7 @@ class  leaveApplicationApiView(APIView):
 
         try:
 
-            file_stored_path = '/eztime/site/public/media/leave_files/'
+            file_stored_path = '/eztime/django/site/media/leave_files/'
             project_base_url = 'https://eztime.thestorywallcafe.com/'
             leave_application_file_attachment=data.get('leave_application_file_attachment')
 
@@ -9521,7 +9521,7 @@ class  leaveApplicationApiView(APIView):
 
         
         try:
-            file_stored_path = '/eztime/site/public/media/leave_files/'
+            file_stored_path = '/eztime/django/site/media/leave_files/'
             project_base_url = 'https://eztime.thestorywallcafe.com/'
             leave_application_file_attachment=data.get('leave_application_file_attachment')
 
@@ -9653,7 +9653,7 @@ class  ProfileApiView(APIView):
         extension_data = re.split(':|;', data_split)[1] 
         guess_extension_data = guess_extension(extension_data)
         # print(guess_extension_data,'guess_extension_data')
-        filename1 = "/eztime/site/public/media/user_profile_photo/"+first_name+guess_extension_data
+        filename1 = "/eztime/django/site/media/user_profile_photo/"+first_name+guess_extension_data
         # filename1 = "D:/EzTime/eztimeproject/media/photo/"+name+'.png'
         fname1 = '/user_profile_photo/'+first_name+guess_extension_data
         ss=  open(filename1, 'wb')
@@ -9758,7 +9758,7 @@ class  ProfileApiView(APIView):
         extension_data = re.split(':|;', data_split)[1] 
         guess_extension_data = guess_extension(extension_data)
 
-        filename1 = "/eztime/site/public/media/user_profile_photo/"+first_name+guess_extension_data
+        filename1 = "/eztime/django/site/media/user_profile_photo/"+first_name+guess_extension_data
         # filename1 = "D:/EzTime/eztimeproject/media/photo/"+name+'.png'
         fname1 = '/user_profile_photo/'+first_name+guess_extension_data
         ss=  open(filename1, 'wb')
@@ -10840,7 +10840,7 @@ class AddOnLeaveRequestApiView(APIView):
 
         try:
 
-            file_stored_path = '/eztime/site/public/media/leave_files/'
+            file_stored_path = '/eztime/django/site/media/leave_files/'
             project_base_url = 'https://eztime.thestorywallcafe.com/'
             leave_application_file_attachment=data.get('leave_application_file_attachment')
 
