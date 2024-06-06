@@ -138,8 +138,8 @@ DATABASES = {
         'PORT': '3306',
         'OPTIONS': {
             'ssl': {
-                'ca': '/eztime/django/ssl/DigiCertGlobalRootCA.crt.pem',
-                # 'ca': os.path.join(BASE_DIR, 'DigiCertGlobalRootCA.crt.pem'),
+                # 'ca': '/eztime/django/ssl/DigiCertGlobalRootCA.crt.pem',
+                'ca': os.path.join(BASE_DIR, 'DigiCertGlobalRootCA.crt.pem'),
                 }
             }     
         }
