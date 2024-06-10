@@ -33,13 +33,23 @@ pipeline {
         }
 
         stage('Push Docker Image to ACR') {
-            steps {
-                script {
-                    sh "docker tag ${env.DOCKER_IMAGE_NAME}:${env.BUILD_ID} ${env.DOCKER_REGISTRY_URL}/${env.DOCKER_IMAGE_NAME}:${env.BUILD_ID}"
-                    sh "docker push ${env.DOCKER_REGISTRY_URL}/${env.DOCKER_IMAGE_NAME}:${env.BUILD_ID}"
-                }
+    steps {
+        script {
+            // Retrieve credentials
+            withCredentials([usernamePassword(credentialsId: env.DOCKER_REGISTRY_CREDENTIALS_ID, usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
+                // Tag the image
+                sh "docker tag ${env.DOCKER_IMAGE_NAME}:${env.BUILD_ID} ${env.DOCKER_REGISTRY_URL}/${env.DOCKER_IMAGE_NAME}:${env.BUILD_ID}"
+
+                // Authenticate Docker with ACR using the retrieved credentials
+                sh "echo \$DOCKER_PASSWORD | docker login \$DOCKER_REGISTRY_URL --username \$DOCKER_USERNAME --password-stdin"
+
+                // Push the image
+                sh "docker push ${env.DOCKER_REGISTRY_URL}/${env.DOCKER_IMAGE_NAME}:${env.BUILD_ID}"
             }
         }
+    }
+}
+
 
         stage('Clean Up') {
             steps {
