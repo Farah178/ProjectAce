@@ -1,6 +1,7 @@
 # Ignore database files
 *.sqlite3
 *.db
+*.tfs
 
 # Ignore static files directory
 /static/
