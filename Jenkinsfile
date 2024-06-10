@@ -27,8 +27,7 @@ pipeline {
         stage('Login to Azure') {
             steps {
                 withCredentials([usernamePassword(credentialsId: env.DOCKER_REGISTRY_CREDENTIALS_ID, usernameVariable: 'AZURE_CLIENT_ID', passwordVariable: 'AZURE_CLIENT_SECRET')]) {
-                    sh 'az login --service-principal -u $AZURE_CLIENT_ID -p $AZURE_CLIENT_SECRET --tenant ${AZURE_TENANT_ID}'
-                    sh 'az acr login --name ${env.DOCKER_REGISTRY_URL.split("\\.")[0]}'
+                    sh "az login --service-principal -u $AZURE_CLIENT_ID -p $AZURE_CLIENT_SECRET --tenant ${AZURE_TENANT_ID}"
                 }
             }
         }
@@ -44,8 +43,10 @@ pipeline {
 
         stage('Clean Up') {
             steps {
-                sh "docker rmi ${env.DOCKER_IMAGE_NAME}:${env.BUILD_ID}"
-                sh "docker rmi ${env.DOCKER_REGISTRY_URL}/${env.DOCKER_IMAGE_NAME}:${env.BUILD_ID}"
+                script {
+                    sh "docker rmi ${env.DOCKER_IMAGE_NAME}:${env.BUILD_ID}"
+                    sh "docker rmi ${env.DOCKER_REGISTRY_URL}/${env.DOCKER_IMAGE_NAME}:${env.BUILD_ID}"
+                }
             }
         }
     }
