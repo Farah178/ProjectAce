@@ -62,17 +62,7 @@ pipeline {
             }
         }
         
-        stage('Deploy to Kubernetes') {
-            steps {
-                script {
-                    // Pull the latest image from ACR
-                    sh "docker pull ${env.DOCKER_REGISTRY_URL}/${env.DOCKER_IMAGE_NAME}:latest"
-
-                    // Deploy the image to Kubernetes
-                    sh "kubectl apply -f deployment.yaml -n ${NAMESPACE}"
-                }
-            }
-        }
+        
     }
 
     post {
