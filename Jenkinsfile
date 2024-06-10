@@ -18,7 +18,7 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 script {
-                    def image = docker.build("${env.DOCKER_REGISTRY_URL}/${env.DOCKER_IMAGE_NAME}:${env.BUILD_ID}")
+                    docker.build("${env.DOCKER_IMAGE_NAME}:${env.BUILD_ID}")
                 }
             }
         }
@@ -35,16 +35,21 @@ pipeline {
             steps {
                 script {
                     docker.withRegistry("https://${env.DOCKER_REGISTRY_URL}", env.DOCKER_REGISTRY_CREDENTIALS_ID) {
-                        def image = docker.image("${env.DOCKER_REGISTRY_URL}/${env.DOCKER_IMAGE_NAME}:${env.BUILD_ID}")
+                        def image = docker.image("${env.DOCKER_IMAGE_NAME}:${env.BUILD_ID}")
                         image.push()
                     }
+                }
+                script {
+                    sh "docker tag ${env.DOCKER_IMAGE_NAME}:${env.BUILD_ID} ${env.DOCKER_REGISTRY_URL}/${env.DOCKER_IMAGE_NAME}:${env.BUILD_ID}"
+                    sh "docker push ${env.DOCKER_REGISTRY_URL}/${env.DOCKER_IMAGE_NAME}:${env.BUILD_ID}"
                 }
             }
         }
 
         stage('Clean Up') {
             steps {
-                sh 'docker rmi ${env.DOCKER_REGISTRY_URL}/${env.DOCKER_IMAGE_NAME}:${env.BUILD_ID}'
+                sh "docker rmi ${env.DOCKER_IMAGE_NAME}:${env.BUILD_ID}"
+                sh "docker rmi ${env.DOCKER_REGISTRY_URL}/${env.DOCKER_IMAGE_NAME}:${env.BUILD_ID}"
             }
         }
     }
