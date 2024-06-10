@@ -3,7 +3,7 @@ pipeline {
 
     environment {
         DOCKER_REGISTRY_URL = 'ekfrazoace.azurecr.io'
-        DOCKER_REGISTRY_CREDENTIALS_ID = '	jenkinsaz'
+        DOCKER_REGISTRY_CREDENTIALS_ID = 'jenkinsaz'
         DOCKER_IMAGE_NAME = 'projectaceprod'
         REPO_URL = 'https://github.com/Farah178/ProjectAce.git'
     }
@@ -18,7 +18,7 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 script {
-                    docker.build("${env.DOCKER_REGISTRY_URL}/${env.DOCKER_IMAGE_NAME}:${env.BUILD_ID}")
+                    def image = docker.build("${env.DOCKER_REGISTRY_URL}/${env.DOCKER_IMAGE_NAME}:${env.BUILD_ID}")
                 }
             }
         }
@@ -26,7 +26,7 @@ pipeline {
         stage('Login to Azure') {
             steps {
                 withCredentials([usernamePassword(credentialsId: env.DOCKER_REGISTRY_CREDENTIALS_ID, usernameVariable: 'AZURE_CLIENT_ID', passwordVariable: 'AZURE_CLIENT_SECRET')]) {
-                    sh 'az login --service-principal -u $AZURE_CLIENT_ID -p $AZURE_CLIENT_SECRET --tenant your-tenant-id'
+                    sh 'az login --service-principal -u $AZURE_CLIENT_ID -p $AZURE_CLIENT_SECRET --tenant 9f939d94-0007-42c6-b87d-0a52cf98b86c'
                 }
             }
         }
@@ -35,7 +35,8 @@ pipeline {
             steps {
                 script {
                     docker.withRegistry("https://${env.DOCKER_REGISTRY_URL}", env.DOCKER_REGISTRY_CREDENTIALS_ID) {
-                        docker.image("${env.DOCKER_REGISTRY_URL}/${env.DOCKER_IMAGE_NAME}:${env.BUILD_ID}").push()
+                        def image = docker.image("${env.DOCKER_REGISTRY_URL}/${env.DOCKER_IMAGE_NAME}:${env.BUILD_ID}")
+                        image.push()
                     }
                 }
             }
