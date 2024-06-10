@@ -61,9 +61,7 @@ pipeline {
                 }
             }
         }
-        stages {
-        // Existing stages...
-
+        
         stage('Deploy to Kubernetes') {
             steps {
                 script {
@@ -75,7 +73,6 @@ pipeline {
                 }
             }
         }
-    }
     }
 
     post {
