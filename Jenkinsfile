@@ -7,6 +7,8 @@ pipeline {
         DOCKER_IMAGE_NAME = 'projectaceprod'
         REPO_URL = 'https://github.com/Farah178/ProjectAce.git'
         AZURE_TENANT_ID = '9f939d94-0007-42c6-b87d-0a52cf98b86c'
+        KUBECONFIG_PATH = '/home/ubuntu/.kube/config'
+        NAMESPACE = 'projectace'
     }
 
     stages {
@@ -59,6 +61,21 @@ pipeline {
                 }
             }
         }
+        stages {
+        // Existing stages...
+
+        stage('Deploy to Kubernetes') {
+            steps {
+                script {
+                    // Pull the latest image from ACR
+                    sh "docker pull ${env.DOCKER_REGISTRY_URL}/${env.DOCKER_IMAGE_NAME}:latest"
+
+                    // Deploy the image to Kubernetes
+                    sh "kubectl apply -f deployment.yaml -n ${NAMESPACE}"
+                }
+            }
+        }
+    }
     }
 
     post {
