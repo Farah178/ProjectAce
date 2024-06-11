@@ -331,6 +331,13 @@ class LoginView(APIView):
                     {'user_id': user.id, 'username': user.username, 'email': user.email}, str(settings.JWT_SECRET_KEY), algorithm="HS256")
                 try:
                     c_user = CustomUser.objects.get(super_user_ref=custom_user.id)
+                    if c_user.u_status.upper() == 'INACTIVE':
+                        return Response({
+                        'error':{'message':"Contact admin to activate your account!",
+                        'hint':'People database should not be deleted, Clear user and create a new one',
+                        'status_code':status.HTTP_401_UNAUTHORIZED,
+                        }},status=status.HTTP_401_UNAUTHORIZED)
+
                     try:
                         people_data = People.objects.get(user_id=c_user.id)
                     except People.DoesNotExist:
@@ -384,7 +391,6 @@ class LoginView(APIView):
                     'permissions': userrole.permissions,
                     'profile_path':c_user.u_profile_path,
                     'status': status.HTTP_200_OK
-                    
                     }
                 response['Authorization'] = authorization
                 response['status'] = status.HTTP_200_OK
@@ -1055,14 +1061,10 @@ class TypeOfIndustriesApiView(APIView):
         data_per_page = request.query_params.get('data_per_page')
         
     
-        pagination = request.query_params.get('pagination')
-        if pagination == 'FALSE':
-            all_data = TypeOfIndustries.objects.filter(Q(org_ref_id=org_ref_id) & ~Q(toi_status='Inactive')).values().order_by('-id')
-            return Response({'result':{'status':'GET all without pagination','data':all_data}})
 
         if id:
             try:
-                all_data = TypeOfIndustries.objects.filter(Q(id=id) & Q(org_ref_id=org_ref_id) & ~Q(toi_status='Inactive')).values().order_by('-id')
+                all_data = TypeOfIndustries.objects.filter(Q(id=id) & Q(org_ref_id=org_ref_id)).values().order_by('-id')
                 return Response({'result':{'status':'GET by Id','data':all_data}})
             except Organization.DoesNotExist:
                 return Response({
@@ -1070,6 +1072,11 @@ class TypeOfIndustriesApiView(APIView):
                 'status_code':status.HTTP_404_NOT_FOUND,
                 }},status=status.HTTP_404_NOT_FOUND)
         else:
+            pagination = request.query_params.get('pagination')
+            if pagination == 'FALSE':
+                all_data = TypeOfIndustries.objects.filter(Q(org_ref_id=org_ref_id) & ~Q(toi_status='Inactive')).values().order_by('-id')
+                return Response({'result':{'status':'GET all without pagination','data':all_data}})
+
             if 'search_key' in request.query_params:
                 search_key = request.query_params.get('search_key')
                
