@@ -5,7 +5,7 @@
 
 # Ignore static files directory
 /static/
-/site
+# /site
 # Ignore media files directory
 /media/
 
