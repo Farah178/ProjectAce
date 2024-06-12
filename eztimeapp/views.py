@@ -32,7 +32,7 @@ from django.core.exceptions import ObjectDoesNotExist
 import json
 import holidays
 from holidays import country_holidays
-
+import calendar
 
 def diffdate(valid_date):
 
@@ -49,6 +49,7 @@ def diffdate(valid_date):
     delta = date1 - date2
     print(delta.days,'delta.days====>')
     return delta.days
+
 
 def clearnotificationcenter():
     create_notification = NotificationCenter.objects.all().delete()
@@ -391,6 +392,7 @@ class LoginView(APIView):
                     'permissions': userrole.permissions,
                     'profile_path':c_user.u_profile_path,
                     'status': status.HTTP_200_OK
+                    
                     }
                 response['Authorization'] = authorization
                 response['status'] = status.HTTP_200_OK
@@ -415,8 +417,26 @@ class ForgotPasswordSendOtp(APIView):
         username = data.get('username')
         Otp = random.randint(100000, 999999)
         F_Otp = Otp
+    
+        
+        # Get the current date and time
+        now_date = datetime.datetime.today()
+        print("Current date and time:", now_date)
+
+        # Add 10 minutes to the current date and time
+        future_date = now_date + datetime.timedelta(minutes=10)
+        print("Future date and time (+10 minutes):", future_date)
+
+        # Convert the future date and time to a timestamp
+        timestamp = int(future_date.timestamp())
+        print("Timestamp:", timestamp)
+
+        # Convert the timestamp back to a datetime object
+        converted_to_date = datetime.datetime.fromtimestamp(timestamp)
+        print("Converted date from timestamp:", converted_to_date)
+
         if User.objects.filter(Q(username=username)).exists():
-            update_otp = CustomUser.objects.filter(u_email=username).update(u_reset_otp=int(Otp))
+            update_otp = CustomUser.objects.filter(u_email=username).update(u_reset_otp=int(Otp),u_reset_otp_time_stamp=int(timestamp))
             print(update_otp,'update_otp')
             pass
         else:
@@ -437,8 +457,9 @@ class ForgotPasswordSendOtp(APIView):
         )
         data_dict = {}
         data_dict["OTP"] = Otp
+        data_dict["timeout"] = timestamp
         return Response({'result':data_dict})
-        
+    
 
 class OtpVerificationForgotpass(APIView):
 
@@ -447,11 +468,24 @@ class OtpVerificationForgotpass(APIView):
         otp = data.get('OTP')
         email = data.get('username')
         user_check=CustomUser.objects.get(u_email=email)
-        if otp==user_check.u_reset_otp:
+
+        # Get the current date and time
+        now_date = datetime.datetime.today()
+        print("Current date and time:", now_date)
+
+        # Add 10 minutes to the current date and time
+        # future_date = now_date + datetime.timedelta(minutes=10)
+        # print("Future date and time (+10 minutes):", future_date)
+
+        # Convert the future date and time to a timestamp
+        timestamp = int(now_date.timestamp())
+        
+
+        if otp==user_check.u_reset_otp and timestamp <= user_check.u_reset_otp_time_stamp:
             update_otp = CustomUser.objects.filter(u_email=email).update(u_reset_otp=None)
             return Response({'result':{'message': 'OTP matches successfully'}})
         else:
-            return Response({'error':{'message': 'Invalid OTP'}},status=status.HTTP_406_NOT_ACCEPTABLE)
+            return Response({'error':{'message': 'Invalid OTP or Timeout'}},status=status.HTTP_406_NOT_ACCEPTABLE)
 
 
 class ForgotPasswordReset(APIView):
@@ -1061,7 +1095,7 @@ class TypeOfIndustriesApiView(APIView):
         data_per_page = request.query_params.get('data_per_page')
         
     
-
+        
         if id:
             try:
                 all_data = TypeOfIndustries.objects.filter(Q(id=id) & Q(org_ref_id=org_ref_id)).values().order_by('-id')
@@ -8408,8 +8442,14 @@ class  BalanceApiView(APIView):
                     }
                 }, status=status.HTTP_404_NOT_FOUND)
 
+            now_date = datetime.datetime.today()
+            last_day = calendar.monthrange(now_date.year, now_date.month)[1]
+            end_of_month_date = datetime.date(now_date.year, now_date.month, last_day)
+            end_of_month_datetime = datetime.datetime.combine(end_of_month_date, datetime.time.min)
+            end_of_month_timestamp = int(end_of_month_datetime.timestamp())
+
             total_leaves_taken = 0
-            all_data = leaveApplication.objects.filter(Q(leave_type_id=leave_type_id) & Q(user_id=user_id)).values().order_by('-id')
+            all_data = leaveApplication.objects.filter(Q(leave_type_id=leave_type_id) & Q(user_id=user_id) & Q(leaveApplication_from_date__lte=end_of_month_timestamp)).values().order_by('-id')
             for t in all_data:
                 if t['approved_state'] != 'DECLINED':
                     total_leaves_taken = total_leaves_taken + float(t['days'])
@@ -8641,6 +8681,7 @@ class  BalanceApiView(APIView):
     #             }},status=status.HTTP_404_NOT_FOUND)
                 
 from django.db.models import Q, Sum
+
 @method_decorator([AutorizationRequired], name='dispatch')
 class  leaveDetailsApiView(APIView):
     def get(self, request):
@@ -8716,6 +8757,12 @@ class  leaveDetailsApiView(APIView):
             leave_balance_list = []
             for i in leave_type:
                 print(cuser.center_id, 'cuser.center_id', i.id, 'i.id')
+                now_date = datetime.datetime.today()
+                last_day = calendar.monthrange(now_date.year, now_date.month)[1]
+                end_of_month_date = datetime.date(now_date.year, now_date.month, last_day)
+                end_of_month_datetime = datetime.datetime.combine(end_of_month_date, datetime.time.min)
+                end_of_month_timestamp = int(end_of_month_datetime.timestamp())
+
                 try:
                     center_leave = MasterLeaveTypes.objects.get(Q(organization_id=organization_id) & Q(leave_applicable_for_id=cuser.center_id) & Q(id=i.id))
                     if center_leave.accrude_monthly:
@@ -8724,7 +8771,7 @@ class  leaveDetailsApiView(APIView):
                         total_leaves = float(center_leave.yearly_leaves) if center_leave.yearly_leaves else 0.0
 
                     used_leaves = 0
-                    user_leaves_type = leaveApplication.objects.filter(Q(leave_type_id=i.id) & Q(user_id=user_id) & Q(organization_id=organization_id)).values().order_by('-id')
+                    user_leaves_type = leaveApplication.objects.filter(Q(leave_type_id=i.id) & Q(user_id=user_id) & Q(organization_id=organization_id) & Q(leaveApplication_from_date__lte=end_of_month_timestamp)).values().order_by('-id')
                     for j in user_leaves_type:
                         if j['approved_state'] != 'DECLINED':
                             if j['days']:
@@ -9397,38 +9444,131 @@ class  leaveApplicationApiView(APIView):
         leaveApplication_to_date = time.mktime(datetime.datetime.strptime(ltd, "%d/%m/%Y").timetuple())
         print(leaveApplication_to_date,'stamppppppppppppppp')
         
+        # ======= Parse the lfd to get a datetime object
+        parsed_date = datetime.datetime.strptime(lfd, "%d/%m/%Y")
+        parsed_date_to = datetime.datetime.strptime(ltd, "%d/%m/%Y")
+
+        # Get the first day of the month
+        start_of_month_date = datetime.date(parsed_date.year, parsed_date.month, 1)
+        start_of_month_timestamp = time.mktime(datetime.datetime.combine(start_of_month_date, datetime.datetime.min.time()).timetuple())
+
+        # Get the last day of the month
+        last_day = calendar.monthrange(parsed_date.year, parsed_date.month)[1]
+        end_of_month_date = datetime.date(parsed_date.year, parsed_date.month, last_day)
+        end_of_month_timestamp = time.mktime(datetime.datetime.combine(end_of_month_date, datetime.datetime.min.time()).timetuple())
+
+        print("Start of the month date:", start_of_month_date)
+        print("Start of the month timestamp:", start_of_month_timestamp)
+        print("End of the month date:", end_of_month_date)
+        print("End of the month timestamp:", end_of_month_timestamp)
+
+
     
         selected_page_no =1 
         page_number = request.GET.get('page')
         if page_number:
             selected_page_no = int(page_number)
 
+
+        # other months ===================
+        cuser = CustomUser.objects.get(id=user_id)
+        center_leave = MasterLeaveTypes.objects.get(Q(leave_applicable_for_id=cuser.center_id) & Q(id=leave_type))
+        if center_leave.accrude_monthly == True:
+            if parsed_date.month != parsed_date_to.month:
+                return Response({
+                    'error': {
+                        'message': 'You do not allowed to apply leave of combine multiple month leave at once' ,
+                        'info':'Leave type is accrude monthly, we cannot combine multiple month leave at once',
+                        'status_code': status.HTTP_404_NOT_FOUND,
+                    }
+                }, status=status.HTTP_404_NOT_FOUND)
+
+
+        if leaveApplication.objects.filter(Q(organization_id=organization_id) & Q(user_id=user_id)& ~Q(approved_state="DECLINED") ).exists():
+            leave_data = leaveApplication.objects.filter(Q(organization_id=organization_id) & Q(user_id=user_id)& ~Q(approved_state="DECLINED") & Q(leaveApplication_from_date__gte=start_of_month_timestamp) & Q(leaveApplication_to_date__lte=end_of_month_timestamp))
+            
+            print(leave_data,'leave_type===>123')
+            for k in leave_data:
+                
+                if center_leave.accrude_monthly == True:
+                    monthly_leaves = center_leave.monthly_leaves
+                    no_of_leaves = center_leave.no_of_leaves
+               
+                total_leaves_taken = 0
+                all_data = leaveApplication.objects.filter(Q(leave_type_id=leave_type) & Q(user_id=user_id) & Q(leaveApplication_from_date__gte=start_of_month_timestamp) & Q(leaveApplication_to_date__lte=end_of_month_timestamp)).values().order_by('-id')
+                print(all_data,'all_data===>')
+                for t in all_data:
+                    if t['approved_state'] != 'DECLINED':
+                        total_leaves_taken = total_leaves_taken + float(t['days'])
+
+                total_leaves_left = float(no_of_leaves) - float(total_leaves_taken)
+                print(total_leaves_left,'total_leaves_left===>')
+                if total_leaves_left <= 0.0:
+                    return Response({
+                    'error': {
+                        'message': 'You do not have enough leaves left to apply this month',
+                        'total_leaves_you_have': float(no_of_leaves),
+                        'total_leaves_taken': float(total_leaves_taken),
+                        'total_leaves_left': float(total_leaves_left),
+                        'insternal':'1',
+                        'status_code': status.HTTP_404_NOT_FOUND,
+                    }
+                }, status=status.HTTP_404_NOT_FOUND)
+                
+                
+        # =================================================================
+
         if leaveApplication.objects.filter(Q(organization_id=organization_id) & Q(user_id=user_id)& ~Q(approved_state="DECLINED")).exists():
             leave_data = leaveApplication.objects.filter(Q(organization_id=organization_id) & Q(user_id=user_id)& ~Q(approved_state="DECLINED"))
             for k in leave_data:
-                if float(leaveApplication_from_date) >= float(k.leaveApplication_from_date):
+                if float(leaveApplication_from_date) == float(k.leaveApplication_from_date):
+                    print("Both are same ")
+                    countdays2 = float(k.days)
+                    result2 = int(countdays2) / 0.5
+                    if int(result2) != 0 and int(result2) % 2 == 0:
+                        print(int(result2) % 2,'modulusss',int(countdays2),'int(countdays2)',result2,'result2')
+                        return Response({
+                                'error':{'message':'You already applied for leave on this day',
+                                'hint':'check my leave section to know abount you current leave dates',
+                                'description':'Check all date you applied leaves',
+                                'status_code':status.HTTP_400_BAD_REQUEST,
+                                }},status=status.HTTP_400_BAD_REQUEST)
+
+                if (float(leaveApplication_from_date) >= float(k.leaveApplication_from_date)) & (float(leaveApplication_from_date) <= float(k.leaveApplication_from_date)):
                     print("150 > 100 DB",k.id)
                     if float(leaveApplication_from_date)<= float(k.leaveApplication_to_date):
                         print("150 < 200 DB")
-                        return Response({
-                            'error':{'message':'You already applied for leave on this day',
-                            'hint':'check my leave section to know abount you current leave dates',
-                            'description':'Check all date you applied leaves',
-                            'status_code':status.HTTP_400_BAD_REQUEST,
-                            }},status=status.HTTP_400_BAD_REQUEST)
+                        
+                        countdays = float(k.days)
+                        result = int(countdays) / 0.5
+                        print(int(result),'result==>123')
+                        if int(result) != 0 and int(result) % 2 == 0:
+                            return Response({
+                                'error':{'message':'You already applied for leave on this day',
+                                'hint':'check my leave section to know abount you current leave dates',
+                                'description':'Check all date you applied leaves',
+                                'status_code':status.HTTP_400_BAD_REQUEST,
+                                }},status=status.HTTP_400_BAD_REQUEST)
+                
                     else:
                         print("250 > 200 DB",k.id)
                         
-                if float(leaveApplication_from_date) <= float(k.leaveApplication_from_date):
-                    print("150 < 200 DB",k.id)
-                    if float(leaveApplication_to_date) <= float(k.leaveApplication_from_date):
-                        print("150 < 200 DB",k.id)
-                    else:
-                        return Response({
-                        'error':{'message':'You already applied for leave on this day',
-                        'hint':'check my leave section to know abount you current leave',
-                        'status_code':status.HTTP_400_BAD_REQUEST,
-                        }},status=status.HTTP_400_BAD_REQUEST)
+                # if float(leaveApplication_from_date) <= float(k.leaveApplication_from_date):
+                    
+                #     print("150 < 200 DB",k.id)
+                #     if float(leaveApplication_to_date) <= float(k.leaveApplication_from_date):
+                #         print("150 < 200 DB",k.id)
+                #     else:
+                #         countdays2 = float(k.days)
+                #         if countdays2 % 0.5 == 0:
+                #             result1 = int(countdays2) / 0.5
+                #             print(int(result1),'result==>123==1')
+                #             if int(result1) % 2 == 0:
+                #                 return Response({
+                #                 'error':{'message':'You already applied for leave on this day',
+                #                 'hint':'check my leave section to know abount you current leave - 1',
+                #                 'status_code':status.HTTP_400_BAD_REQUEST,
+                #                 }},status=status.HTTP_400_BAD_REQUEST)
 
 
         try:

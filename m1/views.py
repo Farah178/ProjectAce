@@ -235,13 +235,13 @@ class TimeSheetApiViewAll(APIView):
                     queryset1 = TimeSheets.objects.filter(Q(approved_state=approved_state) & Q(created_by_id=user_id) & Q(applied_date_timestamp__gte=fd)).values().order_by('-created_date_time')
 
 
-                    yet_to_be_approved_count = TimeSheets.objects.filter(Q(approved_state='YET_TO_APPROVED')& Q(created_by_id=user_id)).count()
-                    approved_count = TimeSheets.objects.filter(Q(approved_state='APPROVED')& Q(created_by_id=user_id)).count()
-                    declined_count = TimeSheets.objects.filter(Q(approved_state='DECLINED')& Q(created_by_id=user_id)).count()
+                    yet_to_be_approved_count = TimeSheets.objects.filter(Q(approved_state='YET_TO_APPROVED')& Q(created_by_id=user_id) & Q(applied_date_timestamp__gte=fd)).count()
+                    approved_count = TimeSheets.objects.filter(Q(approved_state='APPROVED')& Q(created_by_id=user_id) & Q(applied_date_timestamp__gte=fd)).count()
+                    declined_count = TimeSheets.objects.filter(Q(approved_state='DECLINED')& Q(created_by_id=user_id) & Q(applied_date_timestamp__gte=fd)).count()
 
-                    yet_to_be_approved_queryset = TimeSheets.objects.filter(Q(approved_state='YET_TO_APPROVED')& Q(created_by_id=user_id))
-                    approved_queryset = TimeSheets.objects.filter(Q(approved_state='APPROVED')& Q(created_by_id=user_id))
-                    declined_queryset = TimeSheets.objects.filter(Q(approved_state='DECLINED')& Q(created_by_id=user_id))
+                    yet_to_be_approved_queryset = TimeSheets.objects.filter(Q(approved_state='YET_TO_APPROVED')& Q(created_by_id=user_id) & Q(applied_date_timestamp__gte=fd))
+                    approved_queryset = TimeSheets.objects.filter(Q(approved_state='APPROVED')& Q(created_by_id=user_id) & Q(applied_date_timestamp__gte=fd))
+                    declined_queryset = TimeSheets.objects.filter(Q(approved_state='DECLINED')& Q(created_by_id=user_id) & Q(applied_date_timestamp__gte=fd))
                     
                     yet_to_be_approved_hours = 0
                     approved_hours = 0
@@ -278,7 +278,7 @@ class TimeSheetApiViewAll(APIView):
                             'to_date_timestamp':td
                         }
                     data_pagination = EztimeAppPagination(queryset1,page_number,data_per_page,request)
-                    return Response({'result':{'status':'GET BY USER ID','timesheet_dashboard':all_count,
+                    return Response({'result':{'status':'GET BY USER ID==11','timesheet_dashboard':all_count,
                         'pagination':{
                             'current_page':data_pagination[1]['current_page'],
                             'number_of_pages':data_pagination[1]['number_of_pages'],
@@ -423,13 +423,13 @@ class TimesheetApiViews(APIView):
                         y['created_by_phone_no'] = cuser.u_phone_no
 
 
-                    yet_to_be_approved_count = TimeSheets.objects.filter(Q(organization_id=organization_id) & Q(approved_state='YET_TO_APPROVED')& Q(created_by_id=user_id)& Q(applied_date_timestamp__gte=fd) & Q(applied_date_timestamp__lte=td)).count()
+                    yet_to_be_approved_count = TimeSheets.objects.filter(Q(organization_id=organization_id) & Q(approved_state='YET_TO_APPROVED')& Q(created_by_id=user_id) & Q(applied_date_timestamp__gte=fd) & Q(applied_date_timestamp__lte=td)).count()
                     approved_count = TimeSheets.objects.filter(Q(organization_id=organization_id) & Q(approved_state='APPROVED')& Q(created_by_id=user_id)& Q(applied_date_timestamp__gte=fd) & Q(applied_date_timestamp__lte=td)).count()
                     declined_count = TimeSheets.objects.filter(Q(organization_id=organization_id) & Q(approved_state='DECLINED')& Q(created_by_id=user_id)& Q(applied_date_timestamp__gte=fd) & Q(applied_date_timestamp__lte=td)).count()
 
-                    yet_to_be_approved_queryset = TimeSheets.objects.filter(Q(organization_id=organization_id) & Q(approved_state='YET_TO_APPROVED')& Q(created_by_id=user_id))
-                    approved_queryset = TimeSheets.objects.filter(Q(organization_id=organization_id) & Q(approved_state='APPROVED')& Q(created_by_id=user_id))
-                    declined_queryset = TimeSheets.objects.filter(Q(organization_id=organization_id) & Q(approved_state='DECLINED')& Q(created_by_id=user_id))
+                    yet_to_be_approved_queryset = TimeSheets.objects.filter(Q(organization_id=organization_id) & Q(approved_state='YET_TO_APPROVED')& Q(created_by_id=user_id) & Q(applied_date_timestamp__gte=fd) & Q(applied_date_timestamp__lte=td))
+                    approved_queryset = TimeSheets.objects.filter(Q(organization_id=organization_id) & Q(approved_state='APPROVED')& Q(created_by_id=user_id) & Q(applied_date_timestamp__gte=fd) & Q(applied_date_timestamp__lte=td))
+                    declined_queryset = TimeSheets.objects.filter(Q(organization_id=organization_id) & Q(approved_state='DECLINED')& Q(created_by_id=user_id) & Q(applied_date_timestamp__gte=fd) & Q(applied_date_timestamp__lte=td))
                     
                     yet_to_be_approved_hours = 0
                     approved_hours = 0
@@ -468,7 +468,7 @@ class TimesheetApiViews(APIView):
                             'to_date_timestamp':td
                         }
                     data_pagination = EztimeAppPagination(queryset1,page_number,data_per_page,request)
-                    return Response({'result':{'status':'GET BY USER ID','timesheet_dashboard':all_count,
+                    return Response({'result':{'status':'GET BY USER ID====333','timesheet_dashboard':all_count,
                         'pagination':{
                             'current_page':data_pagination[1]['current_page'],
                             'number_of_pages':data_pagination[1]['number_of_pages'],
@@ -560,7 +560,7 @@ class TimesheetApiViews(APIView):
                             # 'to_date_timestamp':td
                         }
                     data_pagination = EztimeAppPagination(queryset1,page_number,data_per_page,request)
-                    return Response({'result':{'status':'GET BY USER ID','timesheet_dashboard':all_count,
+                    return Response({'result':{'status':'GET BY USER ID===2','timesheet_dashboard':all_count,
                         'pagination':{
                             'current_page':data_pagination[1]['current_page'],
                             'number_of_pages':data_pagination[1]['number_of_pages'],

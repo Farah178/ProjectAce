@@ -96,6 +96,7 @@ class CustomUser(models.Model):
     u_status                     = models.CharField(max_length=100, null=True, blank=True)
     u_created_from               = models.CharField(max_length=100, null=True, blank=True)
     u_reset_otp                  = models.CharField(max_length=100, null=True, blank=True)
+    u_reset_otp_time_stamp       = models.IntegerField( blank=True, null=True)
     u_last_login                 = models.CharField(max_length=100, null=True, blank=True)
     u_login_token_key            = models.CharField(max_length=100, null=True, blank=True)
     u_activation_status          = models.CharField(max_length=100, null=True, blank=True)
