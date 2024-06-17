@@ -332,12 +332,15 @@ class LoginView(APIView):
                     {'user_id': user.id, 'username': user.username, 'email': user.email}, str(settings.JWT_SECRET_KEY), algorithm="HS256")
                 try:
                     c_user = CustomUser.objects.get(super_user_ref=custom_user.id)
-                    if (c_user.u_status).upper() == 'INACTIVE':
-                        return Response({
-                        'error':{'message':"Contact admin to activate your account!",
-                        'hint':'People database should not be deleted, Clear user and create a new one',
-                        'status_code':status.HTTP_401_UNAUTHORIZED,
-                        }},status=status.HTTP_401_UNAUTHORIZED)
+                    if c_user is not None and c_user.u_status is not None:
+                        if c_user.u_status.upper() == 'INACTIVE':
+                            return Response({
+                                'error': {
+                                    'message': "Contact admin to activate your account!",
+                                    'hint': 'People database should not be deleted, Clear user and create a new one',
+                                    'status_code': status.HTTP_401_UNAUTHORIZED,
+                                }
+                            }, status=status.HTTP_401_UNAUTHORIZED)
 
                     try:
                         people_data = People.objects.get(user_id=c_user.id)
