@@ -2222,8 +2222,6 @@ class ProjectsAPIView(APIView):
         return queryset
 
     def get(self, request, *args, **kwargs):
-        
-
         key = {'organization_id'}
         check_result, error_response = CheckGetKey(request, key)
         if check_result == 2:
@@ -9540,7 +9538,7 @@ class  leaveApplicationApiView(APIView):
                                 'status_code':status.HTTP_400_BAD_REQUEST,
                                 }},status=status.HTTP_400_BAD_REQUEST)
 
-                if (float(leaveApplication_from_date) >= float(k.leaveApplication_from_date)) & (float(leaveApplication_from_date) <= float(k.leaveApplication_from_date)):
+                if (float(leaveApplication_from_date) >= float(k.leaveApplication_from_date)) | (float(leaveApplication_from_date) <= float(k.leaveApplication_from_date)):
                     print("150 > 100 DB",k.id)
                     if float(leaveApplication_from_date)<= float(k.leaveApplication_to_date):
                         print("150 < 200 DB")
@@ -9578,7 +9576,6 @@ class  leaveApplicationApiView(APIView):
 
 
         try:
-
             file_stored_path = '/eztime/django/site/media/leave_files/'
             project_base_url = 'https://projectaceuat.thestorywallcafe.com/'
             leave_application_file_attachment=data.get('leave_application_file_attachment')
