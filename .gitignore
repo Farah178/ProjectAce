@@ -4,7 +4,7 @@
 *.tfs
 
 # Ignore static files directory
-/static/
+# /static/
 # /site
 # Ignore media files directory
 /media/
