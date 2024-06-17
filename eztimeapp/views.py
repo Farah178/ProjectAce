@@ -332,7 +332,7 @@ class LoginView(APIView):
                     {'user_id': user.id, 'username': user.username, 'email': user.email}, str(settings.JWT_SECRET_KEY), algorithm="HS256")
                 try:
                     c_user = CustomUser.objects.get(super_user_ref=custom_user.id)
-                    if c_user.u_status.upper() == 'INACTIVE':
+                    if (c_user.u_status).upper() == 'INACTIVE':
                         return Response({
                         'error':{'message':"Contact admin to activate your account!",
                         'hint':'People database should not be deleted, Clear user and create a new one',
@@ -9493,7 +9493,10 @@ class  leaveApplicationApiView(APIView):
                 if center_leave.accrude_monthly == True:
                     monthly_leaves = center_leave.monthly_leaves
                     no_of_leaves = center_leave.no_of_leaves
-               
+                else:
+                    yearly_leaves = center_leave.yearly_leaves
+                    no_of_leaves = center_leave.no_of_leaves
+                    
                 total_leaves_taken = 0
                 all_data = leaveApplication.objects.filter(Q(leave_type_id=leave_type) & Q(user_id=user_id) & Q(leaveApplication_from_date__gte=start_of_month_timestamp) & Q(leaveApplication_to_date__lte=end_of_month_timestamp)).values().order_by('-id')
                 print(all_data,'all_data===>')
