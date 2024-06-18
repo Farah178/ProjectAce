@@ -29,6 +29,7 @@ RUN pip install -r requirements.txt
 # Create necessary directories
 RUN mkdir -p /eztime/django/site/static
 RUN mkdir -p /eztime/django/site/static/frontend
+RUN mkdir -p /eztime/django/site/media
 
 # Create the media directories
 RUN mkdir -p /eztime/django/site/media/file_attachment /eztime/django/site/media/leave_files /eztime/django/site/media/org_logo /eztime/django/site/media/pf_file_path /eztime/django/site/media/photo /eztime/django/site/media/user_profile_photo
