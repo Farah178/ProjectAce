@@ -33,6 +33,7 @@ import json
 import holidays
 from holidays import country_holidays
 import calendar
+from django.views.decorators.csrf import csrf_exempt
 
 def diffdate(valid_date):
 
@@ -2222,6 +2223,8 @@ class ProjectsAPIView(APIView):
         return queryset
 
     def get(self, request, *args, **kwargs):
+        
+
         key = {'organization_id'}
         check_result, error_response = CheckGetKey(request, key)
         if check_result == 2:
@@ -2457,6 +2460,8 @@ class ProjectsAPIView(APIView):
         else:
             if 'search_key' in request.query_params:
                 search_key = request.query_params.get('search_key')
+                user_id = request.query_params.get('user_id')
+
                 r_cuser = CustomUser.objects.filter(Q(u_first_name__icontains  = search_key))
                 r_query = Q()
                 for r_entry in r_cuser:
@@ -2466,14 +2471,20 @@ class ProjectsAPIView(APIView):
                 a_query = Q()
                 for a_entry in a_cuser:
                     a_query = a_query | Q(approve_manager_ref_id=a_entry.id)
+                
+                b_cuser = CustomUser.objects.filter(Q(u_first_name__icontains  = search_key))
+                b_query = Q()
+                for b_entry in b_cuser:
+                    b_query = b_query | Q(reporting_manager_ref_id=b_entry.id)
 
                 c_cuser = Clients.objects.filter(Q(c_name__icontains  = search_key))
                 c_query = Q()
                 for c_entry in c_cuser:
                     c_query = c_query | Q(c_ref_id=c_entry.id)
 
-                all_data = Projects.objects.filter(Q(org_ref_id=organization_id) & (r_query | a_query | c_query | Q(p_name__icontains  = search_key)|Q(p_status__icontains  = search_key))).values().order_by('-id')
+                all_data = Projects.objects.filter(Q(org_ref_id=organization_id) & Q(people_ref_list__contains=[{"id": int(user_id)}]) & (r_query | a_query | b_query | c_query | Q(p_name__icontains  = search_key)|Q(p_status__icontains  = search_key))).values().order_by('-id')
 
+            
             else:
                 all_data = Projects.objects.filter(Q(org_ref_id=organization_id)).values().order_by('-id')
 
@@ -9008,7 +9019,8 @@ def CheckLeaveSendEmailTOCC(user_id,days,leaveApplication_from_date,leaveApplica
 
     return 1
 
-@method_decorator([AutorizationRequired], name='dispatch')
+
+@method_decorator([csrf_exempt,AutorizationRequired], name='dispatch')
 class  leaveApplicationApiView(APIView):
     def get(self,request):
         res = GetCheckPermission(request)
@@ -9523,9 +9535,24 @@ class  leaveApplicationApiView(APIView):
         # =================================================================
 
         if leaveApplication.objects.filter(Q(organization_id=organization_id) & Q(user_id=user_id)& ~Q(approved_state="DECLINED")).exists():
+
             leave_data = leaveApplication.objects.filter(Q(organization_id=organization_id) & Q(user_id=user_id)& ~Q(approved_state="DECLINED"))
+
             for k in leave_data:
+
+                print(leaveApplication_from_date,'leaveApplication_from_date===',k.leaveApplication_from_date,'k.leaveApplication_from_date===')
+
                 if float(leaveApplication_from_date) == float(k.leaveApplication_from_date):
+
+                    
+                    if (k.from_session == from_session ) | (k.to_session == to_session):
+                        return Response({
+                            'error':{'message':'You already applied for leave on this day on this session',
+                            'hint':'check my leave section to know abount you current leave dates',
+                            'description':'Check all date you applied leaves',
+                            'status_code':status.HTTP_400_BAD_REQUEST,
+                            }},status=status.HTTP_400_BAD_REQUEST)
+
                     print("Both are same ")
                     countdays2 = float(k.days)
                     result2 = int(countdays2) / 0.5
@@ -9533,15 +9560,15 @@ class  leaveApplicationApiView(APIView):
                         print(int(result2) % 2,'modulusss',int(countdays2),'int(countdays2)',result2,'result2')
                         return Response({
                                 'error':{'message':'You already applied for leave on this day',
-                                'hint':'check my leave section to know abount you current leave dates',
+                                'hint':'check my leave section to know abount you current leave dates - 1 ',
                                 'description':'Check all date you applied leaves',
                                 'status_code':status.HTTP_400_BAD_REQUEST,
                                 }},status=status.HTTP_400_BAD_REQUEST)
 
                 if (float(leaveApplication_from_date) >= float(k.leaveApplication_from_date)) | (float(leaveApplication_from_date) <= float(k.leaveApplication_from_date)):
                     print("150 > 100 DB",k.id)
-                    if float(leaveApplication_from_date)<= float(k.leaveApplication_to_date):
-                        print("150 < 200 DB")
+                    if float(leaveApplication_from_date) >= float(k.leaveApplication_to_date):
+                        print("150 < 200 DB",leaveApplication_from_date,'leaveApplication_from_date==1',k.leaveApplication_to_date,'k.leaveApplication_to_date==>2')
                         
                         countdays = float(k.days)
                         result = int(countdays) / 0.5
@@ -9549,7 +9576,7 @@ class  leaveApplicationApiView(APIView):
                         if int(result) != 0 and int(result) % 2 == 0:
                             return Response({
                                 'error':{'message':'You already applied for leave on this day',
-                                'hint':'check my leave section to know abount you current leave dates',
+                                'hint':'check my leave section to know abount you current leave dates - 2',
                                 'description':'Check all date you applied leaves',
                                 'status_code':status.HTTP_400_BAD_REQUEST,
                                 }},status=status.HTTP_400_BAD_REQUEST)
