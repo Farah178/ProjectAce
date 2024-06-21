@@ -2488,7 +2488,7 @@ class ProjectsAPIView(APIView):
             else:
                 all_data = Projects.objects.filter(Q(org_ref_id=organization_id)).values().order_by('-id')
 
-            project_list = []
+            project_list =[]
             for i in all_data:
                 cuser_data = CustomUser.objects.get(id=i['reporting_manager_ref_id'])
                 approver_data = CustomUser.objects.get(id=i['approve_manager_ref_id'])
