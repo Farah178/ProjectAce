@@ -734,17 +734,18 @@ class TimesheetApiViews(APIView):
             for i in project_object.project_related_task_list:
                 if 'id' in i :
                     print(i['id'],'i=====>',task_id,"task_id=>")
-                    if int(i['id']) == int(task_id):
-                        print('if=====>',i,'i=====>',task_id,"task_id=>")
+                    if task_id != "undefined":
+                        if int(i['id']) == int(task_id):
+                            print('if=====>',i,'i=====>',task_id,"task_id=>")
 
-                        flag = 1
-                        dic ={
-                            "id": i['id'], 
-                            "task_name": i['task_name'], 
-                            "billable_type": i['billable_type']
-                        }
-                    else:
-                        print('else=====>')
+                            flag = 1
+                            dic ={
+                                "id": i['id'], 
+                                "task_name": i['task_name'], 
+                                "billable_type": i['billable_type']
+                            }
+                        else:
+                            print('else=====>')
             if flag == 0:
                 return Response({
                     'error':{'message':'tast id '+str(task_id) + ' does not realted to '+ str(project_object.p_name)+  ' Project',
