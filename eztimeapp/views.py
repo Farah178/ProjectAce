@@ -2209,7 +2209,11 @@ def convert_tag_list_string(tag_list):
 
 
 
-
+def add_random_ids(task_list):
+    for task in task_list:
+        if 'id' not in task:
+            task['id'] = random.randint(1000, 9999)  # Generate a random ID
+    return task_list
 
 @method_decorator([AutorizationRequired], name='dispatch')
 class ProjectsAPIView(APIView):
@@ -2429,6 +2433,7 @@ class ProjectsAPIView(APIView):
                         'p_activation_status':i['p_activation_status'],
                         'task_project_category_list':i['task_project_category_list'],
                         'project_related_task_list':i['project_related_task_list'],
+                        'project_subtask_selected':i['project_subtask_selected'],
                         'project_related_task_list_converted':task_list_converted,
                         'p_c_date':i['p_c_date'],
                         'sort':i['sort'],
@@ -2528,6 +2533,7 @@ class ProjectsAPIView(APIView):
                     'p_activation_status':i['p_activation_status'],
                     'task_project_category_list':i['task_project_category_list'],
                     'project_related_task_list':i['project_related_task_list'],
+                    'project_subtask_selected':i['project_subtask_selected'],
                     'project_related_task_list_converted':task_list_converted,
                     'p_c_date':i['p_c_date'],
                     'sort':i['sort'],
@@ -2585,10 +2591,10 @@ class ProjectsAPIView(APIView):
         p_task_checklist_status  = data['p_task_checklist_status']
         p_status                 = data['p_status']
         p_activation_status      = data['p_activation_status']
-
+        project_related_task_list= data['project_related_task_list']
         task_project_category_list = data['task_project_category_list']
-        project_related_task_list   = data['project_related_task_list']
-
+        
+        
         key = {'org_ref_id'}
         check_result, error_response = CheckDataKey(request, key)
         if check_result == 2:
@@ -2608,9 +2614,13 @@ class ProjectsAPIView(APIView):
                     'status_code':status.HTTP_404_NOT_FOUND,
                     }}, status=status.HTTP_400_BAD_REQUEST)
 
-            Projects.objects.create(
-                project_related_task_list=project_related_task_list,
+            updated_task_list = add_random_ids(project_related_task_list)
+            
+           
+            project_data = Projects.objects.create(
+                project_related_task_list=updated_task_list,
                 task_project_category_list=task_project_category_list,
+                 
                 p_code=p_code,
                 org_ref_id   =   org_ref,
                 opg_ref_id   =opg_ref,
@@ -2631,6 +2641,10 @@ class ProjectsAPIView(APIView):
                 p_status =p_status,
                 p_activation_status =p_activation_status
                 )
+            if 'project_subtask_selected' in data:
+                project_subtask_selected   = data['project_subtask_selected']
+                project_data.project_subtask_selected = project_subtask_selected
+                project_data.save()
             posts = Projects.objects.all().values().order_by('-id')
             paginator = Paginator(posts,10)
             try:
@@ -2691,11 +2705,16 @@ class ProjectsAPIView(APIView):
                 return Response({'error': {'message':'Project with the same name already exists',
                 'status_code':status.HTTP_404_NOT_FOUND,
                 }}, status=status.HTTP_400_BAD_REQUEST)
-                        
+
+            updated_task_list = add_random_ids(project_related_task_list)
+             
+             
+
             Projects.objects.filter(id=pk).update(
-                                                project_related_task_list=project_related_task_list,
+                                                project_related_task_list=updated_task_list,
 
                                                 task_project_category_list=task_project_category_list,
+                                                 
                                                 p_code=p_code,
                                                 # org_ref_id              =   org_ref,
                                                 opg_ref_id             =opg_ref,
@@ -2716,6 +2735,11 @@ class ProjectsAPIView(APIView):
                                                 p_status                    =p_status,
                                                 p_activation_status           =p_activation_status
                                             )
+            if 'project_subtask_selected' in data:
+                project_subtask_selected   = data['project_subtask_selected']
+                project_data = Projects.objects.get(id=pk)
+                project_data.project_subtask_selected = project_subtask_selected
+                project_data.save()
             return Response({'result':{'status':'Updated'}})
         except IntegrityError as e:
             error_message = e.args
@@ -8442,7 +8466,8 @@ class  BalanceApiView(APIView):
         days = request.query_params.get('days')
         leave_type_id = request.query_params.get('leave_type_id')
         cuser = CustomUser.objects.get(id=user_id)
-        
+        from_date = request.query_params.get('from_date')
+
         if user_id:
             try:
                 center_leave = MasterLeaveTypes.objects.get(Q(leave_applicable_for_id=cuser.center_id) & Q(id=leave_type_id))
@@ -8454,26 +8479,47 @@ class  BalanceApiView(APIView):
                     }
                 }, status=status.HTTP_404_NOT_FOUND)
 
-            now_date = datetime.datetime.today()
-            last_day = calendar.monthrange(now_date.year, now_date.month)[1]
-            end_of_month_date = datetime.date(now_date.year, now_date.month, last_day)
-            end_of_month_datetime = datetime.datetime.combine(end_of_month_date, datetime.time.min)
-            end_of_month_timestamp = int(end_of_month_datetime.timestamp())
-
-            total_leaves_taken = 0
-            all_data = leaveApplication.objects.filter(Q(leave_type_id=leave_type_id) & Q(user_id=user_id) & Q(leaveApplication_from_date__lte=end_of_month_timestamp)).values().order_by('-id')
-            for t in all_data:
-                if t['approved_state'] != 'DECLINED':
-                    total_leaves_taken = total_leaves_taken + float(t['days'])
-
-
-                
+            if not from_date:
+                return Response({
+                    'error': {
+                        'message': 'from_date parameter is required',
+                        'status_code': status.HTTP_400_BAD_REQUEST,
+                    }
+                }, status=status.HTTP_400_BAD_REQUEST)
+        
+            try:
+                from_date_obj = datetime.datetime.strptime(from_date, '%Y-%m-%d')
+            except ValueError:
+                return Response({
+                    'error': {
+                        'message': 'Invalid from_date format. Use YYYY-MM-DD',
+                        'status_code': status.HTTP_400_BAD_REQUEST,
+                    }
+                }, status=status.HTTP_400_BAD_REQUEST)
 
             balance = 0
             monthly_leaves_left = 0
+            total_leaves_taken = 0
             result_dic = {'status': 'GET BY USER_ID'}
             
             if center_leave.accrude_monthly == True:
+
+                start_of_month_date = from_date_obj.replace(day=1)
+                last_day = calendar.monthrange(from_date_obj.year, from_date_obj.month)[1]
+                end_of_month_date = from_date_obj.replace(day=last_day)
+
+                start_of_month_datetime = datetime.datetime.combine(start_of_month_date, datetime.time.min)
+                end_of_month_datetime = datetime.datetime.combine(end_of_month_date, datetime.time.max)
+
+                start_of_month_timestamp = int(start_of_month_datetime.timestamp())
+                end_of_month_timestamp = int(end_of_month_datetime.timestamp())
+
+                all_data = leaveApplication.objects.filter(Q(leave_type_id=leave_type_id) & Q(user_id=user_id) & Q(leaveApplication_from_date__gte=start_of_month_timestamp) & Q(leaveApplication_from_date__lte=end_of_month_timestamp)).values().order_by('-id')
+
+                for t in all_data:
+                    if t['approved_state'] != 'DECLINED':
+                        total_leaves_taken = total_leaves_taken + float(t['days'])
+
                 monthly_leaves = center_leave.monthly_leaves
                 no_of_leaves = center_leave.no_of_leaves
                 
@@ -8536,6 +8582,22 @@ class  BalanceApiView(APIView):
                     }, status=status.HTTP_404_NOT_FOUND)
 
             if center_leave.accrude_monthly == False:
+
+                now_date = datetime.datetime.today()
+                last_day = calendar.monthrange(now_date.year, now_date.month)[1]
+                end_of_month_date = datetime.date(now_date.year, now_date.month, last_day)
+                end_of_month_datetime = datetime.datetime.combine(end_of_month_date, datetime.time.min)
+                end_of_month_timestamp = int(end_of_month_datetime.timestamp())
+
+                total_leaves_taken = 0
+
+                all_data = leaveApplication.objects.filter(Q(leave_type_id=leave_type_id) & Q(user_id=user_id)).values().order_by('-id')
+
+                for t in all_data:
+                    if t['approved_state'] != 'DECLINED':
+                        total_leaves_taken = total_leaves_taken + float(t['days'])
+
+
                 yearly_leaves = center_leave.yearly_leaves
                 no_of_leaves = center_leave.no_of_leaves
                 
@@ -8783,12 +8845,13 @@ class  leaveDetailsApiView(APIView):
                         total_leaves = float(center_leave.yearly_leaves) if center_leave.yearly_leaves else 0.0
 
                     used_leaves = 0
-                    user_leaves_type = leaveApplication.objects.filter(Q(leave_type_id=i.id) & Q(user_id=user_id) & Q(organization_id=organization_id) & Q(leaveApplication_from_date__lte=end_of_month_timestamp)).values().order_by('-id')
+                    user_leaves_type = leaveApplication.objects.filter(Q(leave_type_id=i.id) & Q(user_id=user_id) & Q(organization_id=organization_id) & Q(leaveApplication_from_date__lte = end_of_month_timestamp)).values().order_by('-id')
                     for j in user_leaves_type:
                         if j['approved_state'] != 'DECLINED':
                             if j['days']:
                                 used_leaves += float(j['days'])
-
+                                print("used_leaves===>i.id",used_leaves,i.id)
+                    print(used_leaves,'used_leaves',i.id,'i.id',total_leaves,'total_leaves',center_leave.no_of_leaves,'center_leave.no_of_leaves')
                     leave_balance = float(center_leave.no_of_leaves) - float(used_leaves)
 
                     leave_balance_dic = {
@@ -9422,9 +9485,6 @@ class  leaveApplicationApiView(APIView):
                     'data':data_pagination[0]
                     }})
                 
-
-            
-
     def post(self,request):
         data = request.data
         res = CheckPermission(request)
@@ -9546,18 +9606,20 @@ class  leaveApplicationApiView(APIView):
 
                     
                     if (k.from_session == from_session ) | (k.to_session == to_session):
-                        return Response({
-                            'error':{'message':'You already applied for leave on this day on this session',
-                            'hint':'check my leave section to know abount you current leave dates',
-                            'description':'Check all date you applied leaves',
-                            'status_code':status.HTTP_400_BAD_REQUEST,
-                            }},status=status.HTTP_400_BAD_REQUEST)
+                        if ((k.from_session == from_session) & (float(leaveApplication_from_date) == float(k.leaveApplication_from_date))) & ((k.to_session == to_session )& (float(leaveApplication_from_date) == float(k.leaveApplication_to_date))):
+                            return Response({
+                                'error':{'message':'You already applied for leave on this day on this session',
+                                'hint':'check my leave section to know abount you current leave dates--55',
+                                'description':'Check all date you applied leaves',
+                                'status_code':status.HTTP_400_BAD_REQUEST,
+                                }},status=status.HTTP_400_BAD_REQUEST)
 
                     print("Both are same ")
                     countdays2 = float(k.days)
-                    result2 = int(countdays2) / 0.5
-                    if int(result2) != 0 and int(result2) % 2 == 0:
-                        print(int(result2) % 2,'modulusss',int(countdays2),'int(countdays2)',result2,'result2')
+                    print(countdays2,'countdays2====>123',k.id,'k.id')
+                    result2 = float(countdays2) / 0.5
+                    if float(result2) != 0 and float(result2) % 2 == 0:
+                        print(float(result2) % 2,'modulusss',float(countdays2),'int(countdays2)',result2,'result2')
                         return Response({
                                 'error':{'message':'You already applied for leave on this day',
                                 'hint':'check my leave section to know abount you current leave dates - 1 ',
@@ -9565,41 +9627,45 @@ class  leaveApplicationApiView(APIView):
                                 'status_code':status.HTTP_400_BAD_REQUEST,
                                 }},status=status.HTTP_400_BAD_REQUEST)
 
-                if (float(leaveApplication_from_date) >= float(k.leaveApplication_from_date)) | (float(leaveApplication_from_date) <= float(k.leaveApplication_from_date)):
+                if (float(leaveApplication_from_date) >= float(k.leaveApplication_from_date)):
                     print("150 > 100 DB",k.id)
-                    if float(leaveApplication_from_date) >= float(k.leaveApplication_to_date):
+                    if float(leaveApplication_from_date) <= float(k.leaveApplication_to_date):
                         print("150 < 200 DB",leaveApplication_from_date,'leaveApplication_from_date==1',k.leaveApplication_to_date,'k.leaveApplication_to_date==>2')
                         
                         countdays = float(k.days)
-                        result = int(countdays) / 0.5
-                        print(int(result),'result==>123')
-                        if int(result) != 0 and int(result) % 2 == 0:
-                            return Response({
-                                'error':{'message':'You already applied for leave on this day',
-                                'hint':'check my leave section to know abount you current leave dates - 2',
-                                'description':'Check all date you applied leaves',
-                                'status_code':status.HTTP_400_BAD_REQUEST,
-                                }},status=status.HTTP_400_BAD_REQUEST)
+                        result = float(countdays) / 0.5
+                        print(float(result),'result==>123')
+                        
+                        if float(result) != 0 and float(result) % 2 == 0:
+                            if ((k.from_session == from_session) & (float(leaveApplication_from_date) == float(k.leaveApplication_from_date))) | ((k.to_session == to_session )& (float(leaveApplication_from_date) == float(k.leaveApplication_to_date))):
+                                return Response({
+                                    'error':{'message':'You already applied for leave on this day',
+                                    'hint':'check my leave section to know abount you current leave dates - 2',
+                                    'description':'Check all date you applied leaves',
+                                    'status_code':status.HTTP_400_BAD_REQUEST,
+                                    }},status=status.HTTP_400_BAD_REQUEST)
+                            else:
+                                print("else block ",k.id)
                 
                     else:
                         print("250 > 200 DB",k.id)
                         
-                # if float(leaveApplication_from_date) <= float(k.leaveApplication_from_date):
+                if float(leaveApplication_from_date) <= float(k.leaveApplication_from_date):
                     
-                #     print("150 < 200 DB",k.id)
-                #     if float(leaveApplication_to_date) <= float(k.leaveApplication_from_date):
-                #         print("150 < 200 DB",k.id)
-                #     else:
-                #         countdays2 = float(k.days)
-                #         if countdays2 % 0.5 == 0:
-                #             result1 = int(countdays2) / 0.5
-                #             print(int(result1),'result==>123==1')
-                #             if int(result1) % 2 == 0:
-                #                 return Response({
-                #                 'error':{'message':'You already applied for leave on this day',
-                #                 'hint':'check my leave section to know abount you current leave - 1',
-                #                 'status_code':status.HTTP_400_BAD_REQUEST,
-                #                 }},status=status.HTTP_400_BAD_REQUEST)
+                    print("150 < 200 DB",k.id)
+                    if float(leaveApplication_to_date) <= float(k.leaveApplication_from_date):
+                        print("150 < 200 DB",k.id)
+                    else:
+                        countdays2 = float(k.days)
+                        if countdays2 % 0.5 == 0:
+                            result1 = float(countdays2) / 0.5
+                            print(float(result1),'result==>123==1')
+                            if float(result1) % 2 == 0:
+                                return Response({
+                                'error':{'message':'You already applied for leave on this day',
+                                'hint':'check my leave section to know abount you current leave - 3',
+                                'status_code':status.HTTP_400_BAD_REQUEST,
+                                }},status=status.HTTP_400_BAD_REQUEST)
 
 
         try:
@@ -9669,6 +9735,7 @@ class  leaveApplicationApiView(APIView):
             'status_code':status.HTTP_400_BAD_REQUEST,
             }},status=status.HTTP_400_BAD_REQUEST)
 
+    
     def put(self,request,pk):
         data = request.data
         res = CheckPermission(request)

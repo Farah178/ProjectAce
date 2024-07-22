@@ -198,6 +198,7 @@ class Projects(models.Model):
     p_activation_status             = models.CharField(max_length=250, blank=True, null=True)
     task_project_category_list      =  models.JSONField(blank=True, null=True)
     project_related_task_list       =  models.JSONField(blank=True, null=True)
+    project_subtask_selected       = models.CharField(max_length=250, blank=True, null=True)
     p_c_date                        = models.DateTimeField(auto_now_add=True,verbose_name="Create_TimeStamp",blank=True,null=True)
     p_m_date                        = models.DateTimeField(auto_now_add=True,verbose_name="Last_Update_TimeStamp",blank=True,null=True)
     sort =  models.IntegerField( blank=True, null=True)

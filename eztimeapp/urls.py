@@ -252,6 +252,7 @@ urlpatterns = [
     path('country-state-city', CountryStateCityApiView.as_view()),
     path('country-state-city/<int:pk>', CountryStateCityApiView.as_view()), 
 
+    path('check-auth/', check_authorization_header),
 
     
     

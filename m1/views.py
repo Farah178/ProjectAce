@@ -741,9 +741,10 @@ class TimesheetApiViews(APIView):
                             flag = 1
                             dic ={
                                 "id": i['id'], 
-                                "task_name": i['task_name'], 
-                                "billable_type": i['billable_type']
+                                "task_name": i['task_name']
                             }
+                            if "billable_type" in i:
+                                dic["billable_type"] = i['billable_type']
                         else:
                             print('else=====>')
             if flag == 0:
